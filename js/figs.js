@@ -25,7 +25,7 @@
             T(X(t), Y(v) + 36, h, { anchor: "middle", cls: "vt vstrong vsm" }) + T(X(t), Y(v) + 52, p, { anchor: "middle", cls: "vt vxs vmuted" }) + `</g>`;
         }
       );
-      return svg(W, H, g);
+      return svg(W, H, g, "vz-chart");
     }
   };
 
@@ -83,7 +83,7 @@
     cap: "Gleichgewichts- und Polarisationstheorien im Vergleich (schematisch)", src: "eigene Darstellung", wide: true,
     html: () => {
       const x = ["", "", "", "", "", ""];
-      const a = V.lines({ w: 380, h: 240, right: 86, x, min: 0, max: 10, ticks: 2, series: [{ name: "Zentrum", vals: [7, 7.6, 8, 8.2, 8.3, 8.4], smooth: true, s: 0 }, { name: "Peripherie", vals: [2, 3.5, 5, 6.3, 7.3, 8], smooth: true, s: 0 }], notes: [] });
+      const a = V.lines({ w: 380, h: 240, right: 86, x, min: 0, max: 10, ticks: 2, series: [{ name: "Zentrum", vals: [7, 7.6, 8, 8.2, 8.3, 8.4], smooth: true, s: 0, dy: -9 }, { name: "Peripherie", vals: [2, 3.5, 5, 6.3, 7.3, 8], smooth: true, s: 0, dy: 11 }], notes: [] });
       const b = V.lines({ w: 380, h: 240, right: 86, x, min: 0, max: 10, ticks: 2, series: [{ name: "Zentrum", vals: [5, 5.8, 6.8, 7.8, 8.8, 9.7], smooth: true, s: 1 }, { name: "Peripherie", vals: [3, 2.9, 2.7, 2.5, 2.2, 2], smooth: true, s: 1 }] });
       return V.two(
         `<div class="vz-panel"${S(0)}><h5>Gleichgewichtstheorien (Neoklassik)</h5>${a}<p>Faktorwanderungen gleichen Unterschiede aus → <b>Konvergenz</b></p></div>`,
@@ -103,21 +103,21 @@
         `<g${S(s)}><line x1="${l2r ? 300 : 460}" y1="${y}" x2="${l2r ? 460 : 300}" y2="${y}" class="vflow ${l2r ? "a" : "b"}" marker-end="url(#zp)"/>` + T(380, y - 7, label, { anchor: "middle", cls: "vt vsm vstrong" }) + `</g>`;
       g += arrow(105, false, "Rohstoffe", 1) + arrow(150, false, "Arbeitskräfte („Brain Drain“)", 1) + arrow(195, false, "Gewinne (Kapitalrückfluss)", 1);
       g += arrow(245, true, "Kapital, Know-how", 2) + arrow(290, true, "Fertigprodukte", 2) + arrow(335, true, "Entscheidungen (Abhängigkeit)", 3);
-      return svg(W, H, g);
+      return svg(W, H, g, "vz-chart");
     }
   };
 
   F.integration = {
     cap: "Stufen der wirtschaftlichen Integration", src: "nach Lindner u. a. (2002), Kulke (2009), aktualisiert", wide: true,
     html: () => {
-      const st = [["Ökonomische Zusammenarbeit", "Förderung der Entwicklung", "APEC, ASEAN"], ["Freihandelszone", "keine Binnenzölle", "EFTA, USMCA, RCEP"], ["Zollunion", "+ gemeinsamer Außenzoll", "Mercosur, EU–Türkei"], ["Binnenmarkt", "+ vier Freiheiten", "EU-Binnenmarkt 1993"], ["Wirtschaftsunion", "+ harmonisierte Politik", "EU"], ["Währungsunion", "+ gemeinsame Währung", "Euroraum (21)"], ["Politische Union", "+ Außen- u. Verteidigungspolitik", "(Diskussion)"]];
+      const st = [[["Ökonomische", "Zusammen-", "arbeit"], "Förderung der Entwicklung", "APEC, ASEAN"], [["Freihandels-", "zone"], "keine Binnenzölle", "EFTA, USMCA, RCEP"], [["Zollunion"], "+ gemeinsamer Außenzoll", "Mercosur, EU–Türkei"], [["Binnenmarkt"], "+ vier Freiheiten", "EU-Binnenmarkt 1993"], [["Wirtschafts-", "union"], "+ harmonisierte Politik", "EU"], [["Währungs-", "union"], "+ gemeinsame Währung", "Euroraum (21)"], [["Politische", "Union"], "+ Außen- u. Verteidigungs­politik", "(Diskussion)"]];
       const W = 900, H = 410, bw = 122;
       let g = "";
       st.forEach((s, i) => {
         const x = 10 + i * bw, h = 112 + i * 34, y = H - 30 - h;
-        const two = s[0].length > 14;
-        g += `<g${S(i)}><rect x="${x}" y="${y}" width="${bw - 6}" height="${h}" rx="6" class="vstep ${i === 6 ? "dash" : ""}"/>` + T(x + 10, y + 22, String(i + 1), { cls: "vt vstepn" }) +
-          wrap(x + 8, y + 44, s[0], 13, { size: 12.5, weight: 800 }) + wrap(x + 8, y + 44 + (two ? 34 : 18), s[1], 16, { size: 11, cls: "vt vmuted" }) +
+        const tl = s[0].map((l, k) => `<tspan x="${x + 8}" y="${y + 44 + k * 15}">${esc(l)}</tspan>`).join("");
+        g += `<g${S(i)}><rect x="${x}" y="${y}" width="${bw - 6}" height="${h}" rx="2" class="vstep ${i === 6 ? "dash" : ""}"/>` + T(x + 10, y + 22, String(i + 1), { cls: "vt vstepn" }) +
+          `<text class="vt" font-size="13" font-weight="700">${tl}</text>` + wrap(x + 8, y + 50 + s[0].length * 15, s[1], 15, { size: 11, cls: "vt vmuted" }) +
           T(x + (bw - 6) / 2, H - 12, s[2], { anchor: "middle", cls: "vt vxs vacc" }) + `</g>`;
       });
       g += T(W - 10, 20, "zunehmender Integrationsgrad →", { anchor: "end", cls: "vt vsm vmuted" });
@@ -152,14 +152,14 @@
       g += panel(1, "(b) dichteste Packung → Lücken", centers(345, 68).map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${r}" class="vmkt"/><circle cx="${x}" cy="${y}" r="3" class="vdot"/>`).join(""));
       g += panel(2, "(c) Überlappung", centers(575, 58).map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${r}" class="vmkt ov"/><circle cx="${x}" cy="${y}" r="3" class="vdot"/>`).join(""));
       g += panel(3, "(d) lückenloses Sechsecknetz", centers(805, 58).map(([x, y]) => `<path d="${hexPath(x, y, 58 / 1.732, Math.PI / 6)}" class="vhex"/><circle cx="${x}" cy="${y}" r="3" class="vdot"/>`).join(""));
-      return svg(W, H, g);
+      return svg(W, H, g, "vz-chart");
     }
   };
 
   F.kwerte = {
     cap: "Hierarchie und K-Werte: Wie viele Orte versorgt ein zentraler Ort?", src: "nach Haggett (1991), Reichart (1999)", wide: true,
     html: () => {
-      const W = 930, H = 330;
+      const W = 930, H = 340;
       let g = "";
       const R = 92;
       const panel = (i, ox, K, title, sub) => {
@@ -173,20 +173,20 @@
         small.forEach(([x, y]) => (s += `<circle cx="${x}" cy="${y}" r="9" class="vlow"/>`));
         if (K === 4) s += hexPts(cx, cy, R * 0.866, Math.PI / 6).map(([x, y]) => `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="vtrans"/>`).join("");
         s += `<circle cx="${cx}" cy="${cy}" r="16" class="vhigh"/>`;
-        s += T(cx, 30, title, { anchor: "middle", cls: "vt vstrong" }) + T(cx, 300, sub, { anchor: "middle", cls: "vt vsm vmuted" });
-        s += T(cx, 322, K === 3 ? "1 + 6 × ⅓ = 3" : K === 4 ? "1 + 6 × ½ = 4" : "1 + 6 × 1 = 7", { anchor: "middle", cls: "vt vsm vacc" });
+        s += T(cx, 30, title, { anchor: "middle", cls: "vt vstrong" }) + V.wrap(cx, 284, sub, 30, { anchor: "middle", cls: "vt vsm vmuted", size: 12 });
+        s += T(cx, 330, K === 3 ? "1 + 6 × ⅓ = 3" : K === 4 ? "1 + 6 × ½ = 4" : "1 + 6 × 1 = 7", { anchor: "middle", cls: "vt vsm vacc" });
         return s + `</g>`;
       };
       g += panel(0, 155, 3, "K = 3 · Versorgungsprinzip", "abhängige Orte auf den Ecken → 3 Zentren teilen sie");
       g += panel(1, 465, 4, "K = 4 · Verkehrsprinzip", "Orte auf den Kanten → an geraden Verkehrslinien");
       g += panel(2, 775, 7, "K = 7 · Verwaltungsprinzip", "Orte innen → eindeutig einem Zentrum zugeordnet");
-      return svg(W, H, g) + `<div class="vz-legend"><span><i class="lg-high"></i>Ort höherer Stufe</span><span><i class="lg-low"></i>Ort niedrigerer Stufe</span><span><i class="lg-hex"></i>Marktgebiet des höheren Ortes</span></div>`;
+      return svg(W, H, g, "vz-chart") + `<div class="vz-legend"><span><i class="lg-high"></i>Ort höherer Stufe</span><span><i class="lg-low"></i>Ort niedrigerer Stufe</span><span><i class="lg-hex"></i>Marktgebiet des höheren Ortes</span></div>`;
     }
   };
 
   F.zeitpfad = {
     cap: "Raum-Zeit-Pfad eines Tages und Hägerstrands drei Constraints", src: "nach Gather u. a. (2008), S. 164", wide: true,
-    html: () => {
+    html: (o = {}) => {
       const W = 880, H = 360;
       const x = { Wohnung: 110, Arbeit: 300, Geschäft: 440 };
       const Y = (h) => 320 - (h / 24) * 290;
@@ -198,6 +198,7 @@
       const path = [[x.Wohnung, Y(0)], [x.Wohnung, Y(7.4)], [x.Arbeit, Y(8)], [x.Arbeit, Y(12)], [x.Geschäft, Y(12.4)], [x.Geschäft, Y(12.8)], [x.Arbeit, Y(13.2)], [x.Arbeit, Y(17)], [x.Geschäft, Y(17.4)], [x.Geschäft, Y(17.9)], [x.Wohnung, Y(18.6)], [x.Wohnung, Y(24)]];
       g += `<path d="M${path.map((p) => p.join(",")).join("L")}" class="vline vl-1 draw thick"${S(0)}/>`;
       g += T(x.Wohnung + 8, Y(3), "Schlaf", { cls: "vt vxs", s: 0 }) + T(x.Arbeit + 8, Y(10), "Arbeit", { cls: "vt vxs", s: 0 }) + T(x.Geschäft + 8, Y(12.6), "Mittagspause", { cls: "vt vxs", s: 0 }) + T(x.Geschäft + 8, Y(17.6), "Einkauf", { cls: "vt vxs", s: 0 }) + T(x.Wohnung + 8, Y(21), "Freizeit / Schlaf", { cls: "vt vxs", s: 0 });
+      if (o.film) return svg(560, H, g, "vz-chart") + V.cards([{ h: "Capability", p: "Biologie & Mobilität: Schlaf, Essen, Tempo", s: 1 }, { h: "Coupling", p: "Abstimmung mit anderen: Arbeitszeit, Termine", s: 2 }, { h: "Authority", p: "Zugangsregeln: Öffnungszeiten, Verbote", s: 3 }], { cols: 3 });
       const box = (y, h, t, p, s, cls) => `<g${S(s)}><rect x="560" y="${y}" width="300" height="86" rx="10" class="vcon ${cls}"/>` + T(576, y + 26, t, { cls: "vt vstrong" }) + wrap(576, y + 48, p, 40, { size: 12.5, cls: "vt vmuted" }) + `</g>`;
       g += box(20, 0, "Capability Constraints", "Biologie und Mobilitätsressourcen: Schlaf, Essen, Tempo des Verkehrsmittels", 1, "c1");
       g += box(120, 0, "Coupling Constraints", "Koordination mit anderen: Arbeitszeiten, Termine, Familienessen", 2, "c2");
@@ -229,7 +230,7 @@
       g += panel(0, 10, "Expansionsdiffusion", "bleibt am Ursprung, breitet sich aus", dots(75, 145, 6, 18, 3, "vd1"), dots(225, 145, 22, 55, 7, "vd1"));
       g += panel(1, 310, "Relokationsdiffusion", "verlässt den Ursprung", dots(375, 145, 7, 20, 5, "vd2"), `<circle cx="525" cy="145" r="24" class="vghost"/>` + dots(545, 95, 5, 14, 9, "vd2") + dots(505, 200, 5, 14, 11, "vd2"));
       g += panel(2, 610, "Kombinierte Diffusion", "häufigste Form", dots(675, 145, 7, 20, 13, "vd3"), dots(825, 145, 14, 40, 17, "vd3") + dots(860, 85, 4, 10, 19, "vd3"));
-      return svg(W, H, g);
+      return svg(W, H, g, "vz-chart");
     }
   };
 
@@ -241,14 +242,14 @@
       return V.lines({
         w: 720, h: 300, right: 40, x, min: 0, max: 10, ticks: 2, tickDec: 0,
         series: [
-          { name: "t₁", vals: wave(0.5, 9.4, 1.0), smooth: true, s: 0 },
-          { name: "t₂", vals: wave(2.6, 7.6, 1.4), smooth: true, s: 1 },
-          { name: "t₃", vals: wave(5, 5.8, 1.8), smooth: true, s: 2 },
-          { name: "t₄", vals: wave(7.6, 4.2, 2.1), smooth: true, s: 3 },
-          { name: "t₅", vals: wave(10.2, 3, 2.4), smooth: true, s: 4 }
+          { name: "t₁", vals: wave(0.5, 9.4, 1.0), smooth: true, s: 0, labelAt: 1 },
+          { name: "t₂", vals: wave(2.6, 7.6, 1.4), smooth: true, s: 1, labelAt: 3 },
+          { name: "t₃", vals: wave(5, 5.8, 1.8), smooth: true, s: 2, labelAt: 5 },
+          { name: "t₄", vals: wave(7.6, 4.2, 2.1), smooth: true, s: 3, labelAt: 8 },
+          { name: "t₅", vals: wave(10.2, 3, 2.4), smooth: true, s: 4, labelAt: 10 }
         ],
         ylabel: "Neuübernahmen",
-        notes: [{ x: 520, y: 70, t: "Der Scheitel wandert nach außen – die Welle wird flacher", max: 26, s: 5 }]
+        notes: [{ x: 560, y: 60, t: "Der Scheitel wandert nach außen – die Welle wird flacher", max: 24, s: 5, anchor: "middle" }]
       });
     }
   };
@@ -263,7 +264,7 @@
       return V.lines({
         w: 820, h: 320, right: 110, x, min: 0, max: 45, ticks: 3,
         bands: [{ from: 0, to: 2.6, t: "prätransformativ", s: 0 }, { from: 2.6, to: 5.6, t: "frühtransformativ", s: 1, cls: "b2" }, { from: 5.6, to: 8.6, t: "mitteltransformativ", s: 2 }, { from: 8.6, to: 11, t: "spättransformativ", s: 3, cls: "b2" }],
-        series: [{ name: "Geburtenrate", vals: gr, smooth: true, s: 0 }, { name: "Sterberate", vals: sr, smooth: true, s: 0, dy: 10 }],
+        series: [{ name: "Geburtenrate", vals: gr, smooth: true, s: 0, dy: -10 }, { name: "Sterberate", vals: sr, smooth: true, s: 0, dy: 14 }],
         area: { between: [0, 1], s: 1, t: "starkes Wachstum", tx: 360, ty: 150 },
         ylabel: "‰ pro Jahr"
       });
@@ -309,7 +310,7 @@
         g += `<g${S(i)}><circle cx="${cx}" cy="110" r="${r}" class="vglobe"/><path d="M${cx - r},110 Q${cx},${110 + r * 0.45} ${cx + r},110" class="vglobel"/><path d="M${cx},${110 - r} Q${cx - r * 0.45},110 ${cx},${110 + r}" class="vglobel"/>` +
           T(cx, 222, y, { anchor: "middle", cls: "vt vstrong" }) + T(cx, 240, v, { anchor: "middle", cls: "vt vsm vacc" }) + wrap(cx, 20, t, 26, { anchor: "middle", size: 12, cls: "vt vmuted" }) + `</g>`;
       });
-      return svg(W, H, g);
+      return svg(W, H, g, "vz-chart");
     }
   };
 
@@ -317,7 +318,7 @@
     cap: "Transport- und Kommunikationskosten 1930–2005 (Index 1930 = 100, konstante Preise)", src: "HWWA (2002), S. 5; Verlauf vereinfacht nachgezeichnet",
     html: () =>
       V.lines({
-        w: 720, h: 320, right: 150, x: ["1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2005"], min: 0, max: 110, ticks: 4,
+        w: 720, h: 320, right: 150, x: ["1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2005"], min: 0, max: 100, ticks: 4,
         series: [
           { name: "Seefracht 35", vals: [100, 64, 38, 28, 29, 24, 30, 33, 35], s: 0 },
           { name: "Lufttransport 11,8", vals: [100, 68, 30, 24, 16, 10, 11, 9, 11.8], s: 1 },
@@ -336,13 +337,13 @@
       g += `<line x1="70" y1="290" x2="660" y2="290" class="vaxis" marker-end="url(#kd)"/><line x1="70" y1="290" x2="70" y2="25" class="vaxis" marker-end="url(#kd)"/>`;
       g += T(650, 312, "Transportdistanz", { anchor: "end", cls: "vt vsm vmuted" }) + T(34, 160, "Transportkosten", { anchor: "middle", rot: -90, cls: "vt vsm vmuted" });
       const ln = (f, v, cls, name, s) => `<g${S(s)}><line x1="${X(0)}" y1="${Y(f)}" x2="${X(1)}" y2="${Y(f + v)}" class="vline ${cls} draw"/>` + T(X(1) + 6, Y(f + v) + 4, name, { cls: "vt vsm vstrong" }) + `<circle cx="${X(0)}" cy="${Y(f)}" r="4" class="vdot"/></g>`;
-      g += ln(0.05, 0.9, "vl-1", "Lkw", 0) + ln(0.25, 0.45, "vl-2", "Bahn", 1) + ln(0.42, 0.22, "vl-3", "Schiff", 2);
+      g += ln(0.05, 0.95, "vl-1", "Lkw", 0) + ln(0.25, 0.45, "vl-2", "Bahn", 1) + ln(0.42, 0.2, "vl-3", "Schiff", 2);
       // Schnittpunkte
-      const i1 = (0.25 - 0.05) / (0.9 - 0.45), i2 = (0.42 - 0.25) / (0.45 - 0.22);
-      g += `<g${S(3)}><line x1="${X(i1)}" y1="${Y(0.05 + 0.9 * i1)}" x2="${X(i1)}" y2="290" class="vref"/>` + T(X(i1), 306, "ca. 300 km", { anchor: "middle", cls: "vt vsm vacc" }) +
+      const i1 = (0.25 - 0.05) / (0.95 - 0.45), i2 = (0.42 - 0.25) / (0.45 - 0.2);
+      g += `<g${S(3)}><line x1="${X(i1)}" y1="${Y(0.05 + 0.95 * i1)}" x2="${X(i1)}" y2="290" class="vref"/>` + T(X(i1), 306, "ca. 300 km", { anchor: "middle", cls: "vt vsm vacc" }) +
         `<line x1="${X(i2)}" y1="${Y(0.25 + 0.45 * i2)}" x2="${X(i2)}" y2="290" class="vref"/>` + T(X(i2), 306, "ca. 1.000 km", { anchor: "middle", cls: "vt vsm vacc" }) + `</g>`;
       g += T(78, Y(0.42) - 8, "Fixkosten", { cls: "vt vxs vmuted", s: 2 });
-      return svg(W, H, g) + `<p class="vz-note">Ab dem Schnittpunkt wird der Verkehrsträger mit höheren Fixkosten günstiger.</p>`;
+      return svg(W, H, g, "vz-chart") + `<p class="vz-note">Ab dem Schnittpunkt wird der Verkehrsträger mit höheren Fixkosten günstiger.</p>`;
     }
   };
 
@@ -355,7 +356,7 @@
     cap: "Grenzüberschreitende Verflechtung 1980–2009 (schematisch, Index 1980 = 100)", src: "nach Braun u. Schulz (2012), S. 172 (WTO, UNCTAD) – Größenordnungen vereinfacht",
     html: () =>
       V.lines({
-        w: 720, h: 320, right: 170, x: ["1980", "1985", "1990", "1995", "2000", "2005", "2009"], min: 0, max: 1700, ticks: 4,
+        w: 720, h: 320, right: 170, x: ["1980", "1985", "1990", "1995", "2000", "2005", "2009"], min: 0, max: 1600, ticks: 4,
         series: [
           { name: "Direktinvestitionen (ADI)", vals: [100, 140, 450, 680, 1500, 1180, 1250], s: 0, marks: [{ i: 4, t: "Einbruch 2001", dy: -12, s: 1 }] },
           { name: "Exporte", vals: [100, 100, 170, 260, 320, 520, 620], s: 0 },
@@ -369,7 +370,7 @@
     cap: "Hyperglobalisierung und Slowbalisation (schematisch, Index 1990 = 100)", src: "nach Felbermayr u. Görg (2020) – vereinfachte Darstellung", wide: true,
     html: () =>
       V.lines({
-        w: 820, h: 330, right: 150, x: ["1990", "1993", "1996", "1999", "2002", "2005", "2008", "2009", "2012", "2015", "2018", "2021", "2024"], min: 80, max: 340, ticks: 4,
+        w: 820, h: 330, right: 150, x: ["1990", "1993", "1996", "1999", "2002", "2005", "2008", "2009", "2012", "2015", "2018", "2021", "2024"], min: 50, max: 350, ticks: 6,
         bands: [{ from: 0, to: 6, t: "Hyperglobalisierung", s: 0 }, { from: 7, to: 12, t: "Slowbalisation", s: 2, cls: "b2" }],
         series: [
           { name: "Welthandel", vals: [100, 112, 135, 160, 182, 222, 262, 230, 262, 272, 292, 300, 312], s: 0, marks: [{ i: 7, t: "2009: Einbruch", dy: 22, s: 1 }] },
@@ -418,18 +419,20 @@
 
   F.suezkap = {
     cap: "Shanghai–Rotterdam: Suezkanal oder Kap der Guten Hoffnung?", src: "eigene Darstellung; Distanzen und Fahrtzeiten gerundet", wide: true,
-    html: () =>
-      V.map.render("afroeurasia", {
-        routes: [{ pts: R.suez, cls: "r1", label: "via Suez ≈ 19.500 km · 30–35 Tage", lpos: [56, 20.5], anchor: "middle", s: 0 }, { pts: R.kap, cls: "r4", label: "ums Kap ≈ 25.700 km · 40–45 Tage", lpos: [8, -24], anchor: "start", s: 1 }],
-        points: [{ p: P.shanghai, t: "Shanghai", s: 0 }, { p: P.rotterdam, t: "Rotterdam", anchor: "end", dy: -8, s: 0 }, { p: P.suez, t: "Suez", cls: "choke", anchor: "end", s: 2 }, { p: [43.4, 12.6], t: "Rotes Meer / Bab-el-Mandeb", cls: "choke", dy: 18, anchor: "end", s: 2 }, { p: P.hormus, t: "Hormus", cls: "choke", dy: -8, s: 2 }]
-      }) + `<p class="vz-note">Umweg um Afrika: rund <b>6.000 km und 10–14 Tage mehr</b> – höhere Treibstoff-, Personal- und Versicherungskosten, gebundene Schiffskapazität, steigende Frachtraten.</p>`
+    html: (o = {}) => {
+      const m = V.map.render("afroeurasia", {
+        routes: [{ pts: R.suez, cls: "r1", label: o.film ? "via Suez · 30–35 Tage" : "via Suez ≈ 19.500 km · 30–35 Tage", lpos: [60, 19.5], anchor: "middle", s: 0 }, { pts: R.kap, cls: "r4", label: o.film ? "ums Kap · 40–45 Tage" : "ums Kap ≈ 25.700 km · 40–45 Tage", lpos: [6, -24], anchor: "start", s: 1 }],
+        points: [{ p: P.shanghai, t: "Shanghai", s: 0 }, { p: P.rotterdam, t: "Rotterdam", anchor: "end", dy: -8, s: 0 }, { p: P.suez, t: "Suez", cls: "choke", anchor: "end", s: 2 }, { p: [43.4, 12.6], t: "Rotes Meer", cls: "choke", dy: 18, anchor: "end", s: 2 }, { p: P.hormus, t: "Hormus", cls: "choke", dy: -8, s: 2 }]
+      });
+      return o.film ? m + `<p class="vz-note"${S(1)}>Umweg: <b>+6.000 km</b> und <b>+10–14 Tage</b></p>` : m + `<p class="vz-note">Umweg um Afrika: rund <b>6.000 km und 10–14 Tage mehr</b> – höhere Treibstoff-, Personal- und Versicherungskosten, gebundene Schiffskapazität, steigende Frachtraten.</p>`;
+    }
   };
 
   /* ---------- Kapitel 4 ---------- */
   F.europamodelle = {
     cap: "Raumstrukturmodelle Europas: Blaue Banane, Sunbelt, Blaue Banane 2, Pentagon", src: "nach Brunet (1989), DATAR, EUREK (1999)", wide: true,
-    html: () =>
-      V.map.render("europe", {
+    html: (o = {}) =>
+      V.map.render(o.film ? "europefilm" : "europe", {
         areas: [{ pts: [P.london, P.paris, P.mailand, P.muenchen, P.hamburg], cls: "pent", smooth: false, s: 3, t: "Pentagon", tp: [3.6, 48.3] }],
         routes: [
           { pts: R.banane, cls: "banana", w: 34, label: "Blaue Banane", lpos: [-5.6, 54.6], s: 0 },
@@ -442,7 +445,7 @@
 
   F.plz = {
     cap: "Produktlebenszyklus und Standortverlagerung", src: "nach Vernon (1966), Haas u. Neumair (2008), S. 55", wide: true,
-    html: () => {
+    html: (o = {}) => {
       const W = 860, H = 430;
       const xs = [70, 250, 430, 610, 790];
       let g = "";
@@ -452,34 +455,37 @@
       const ph = [["Einführung", "zentral", "Hochschulen, F&E, Fachkräfte, Fühlungsvorteile", "c"], ["Wachstum", "zentral → halbperipher", "Ausbau der Serienfertigung", "c"], ["Reife", "peripher", "Standardisierung, Kostendruck: Niedriglohnländer", "p"], ["Schrumpfung", "peripher", "Verlagerung oder Aufgabe der Produktion", "p"]];
       ph.forEach(([t, w, p, c], i) => {
         g += `<g${S(i)}><rect x="${xs[i]}" y="40" width="${xs[i + 1] - xs[i]}" height="260" class="vband ${i % 2 ? "b2" : ""}"/>` + T((xs[i] + xs[i + 1]) / 2, 58, t, { anchor: "middle", cls: "vt vstrong" }) +
-          `<rect x="${xs[i] + 6}" y="326" width="${xs[i + 1] - xs[i] - 12}" height="30" rx="6" class="vloc ${c}"/>` + T((xs[i] + xs[i + 1]) / 2, 346, w, { anchor: "middle", cls: "vt vsm vstrong" }) +
-          wrap((xs[i] + xs[i + 1]) / 2, 378, p, 26, { anchor: "middle", size: 12, cls: "vt vmuted" }) + `</g>`;
+          (o.film ? "" : `<rect x="${xs[i] + 6}" y="326" width="${xs[i + 1] - xs[i] - 12}" height="30" rx="2" class="vloc ${c}"/>` + T((xs[i] + xs[i + 1]) / 2, 346, w, { anchor: "middle", cls: "vt vsm vstrong" })) +
+          (o.film ? "" : wrap((xs[i] + xs[i + 1]) / 2, 378, p, 26, { anchor: "middle", size: 12, cls: "vt vmuted" })) + `</g>`;
       });
       g += `<path d="${smooth(curve)}" class="vline vl-1 draw thick"${S(0)}/>`;
+      if (o.film) return svg(W, 322, g, "vz-chart") + V.cards(ph.map(([t, w, p, c], i) => ({ k: t, h: w, p, tone: c === "p" ? "acc" : "", s: i })), { cols: 4 });
       return svg(W, H, g);
     }
   };
 
   F.cluster = {
     cap: "Akteure eines Clusters (nach Porter)", src: "nach Porter (1999), Haas u. Neumair (2008)", wide: true,
-    html: () => {
+    html: (o = {}) => {
       const W = 820, H = 420, cx = 410, cy = 205;
       const nodes = [["Zulieferer", "spezialisierte Vorleistungen"], ["Abnehmer / Nachfrage", "anspruchsvolle Kundschaft"], ["Hochschulen & Forschung", "Wissen, Spin-offs"], ["Aus- und Weiterbildung", "Fachkräfte-Pool"], ["Spezialisierte Dienste", "Beratung, Recht, Logistik"], ["Politik & Infrastruktur", "Förderung, Netze, Flächen"], ["Kapitalgeber", "Venture Capital, Banken"]];
+      if (o.film) return V.big("Unternehmen des Clusters", "Kooperation & Wettbewerb im Zentrum", { long: true, s: 0 }) + V.cards(nodes.map(([t, p], i) => ({ h: t, p, s: 1 + Math.floor(i / 3) })), { cols: 4 });
       let g = "";
       nodes.forEach(([t, p], i) => {
         const a = -Math.PI / 2 + (i / nodes.length) * Math.PI * 2, x = cx + Math.cos(a) * 300, y = cy + Math.sin(a) * 160;
         g += `<g${S(1 + Math.floor(i / 3))}><line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="vspoke"/><rect x="${x - 96}" y="${y - 27}" width="192" height="54" rx="10" class="vnode"/>` + T(x, y - 4, t, { anchor: "middle", cls: "vt vsm vstrong" }) + T(x, y + 14, p, { anchor: "middle", cls: "vt vxs vmuted" }) + `</g>`;
       });
       g += `<g${S(0)}><circle cx="${cx}" cy="${cy}" r="70" class="vcenter"/>` + T(cx, cy - 4, "Unternehmen", { anchor: "middle", cls: "vt vstrong" }) + T(cx, cy + 14, "des Clusters", { anchor: "middle", cls: "vt vstrong" }) + T(cx, cy + 34, "Kooperation & Wettbewerb", { anchor: "middle", cls: "vt vxs vmuted" }) + `</g>`;
-      return svg(W, H, g);
+      return svg(W, H, g, "vz-chart");
     }
   };
 
   F.irland = {
     cap: "Wirtschaftswachstum Irlands (reales BIP, % zum Vorjahr)", src: "Eurostat, Statista – Werte gerundet", wide: true,
-    html: () => {
+    html: (o = {}) => {
       const d = [["1991", 1.9], ["", 3.3], ["", 2.7], ["", 5.8], ["1995", 9.6], ["", 9.1], ["", 10.8], ["", 8.8], ["", 10.7], ["2000", 9.4], ["", 5.7], ["", 5.9], ["", 3.0], ["", 6.7], ["2005", 5.7], ["", 5.5], ["", 5.3], ["", -4.0], ["", -5.1], ["2010", 1.8], ["", 0.8], ["", 0.0], ["", 1.3], ["", 8.6], ["2015", 24.7], ["", 2.0], ["", 9.3], ["", 8.5], ["", 5.4], ["2020", 6.6], ["", 16.3], ["", 8.6], ["", -3.2], ["", 1.2], ["2025", 12.4]];
-      return V.cols({ w: 860, h: 320, data: d, min: -10, max: 30, ticks: 4, stagger: true, per: 9, ylabel: "%", notes: [{ x: 560, y: 46, t: "2015: +24,7 % „Leprechaun Economics“", s: 3 }, { x: 405, y: 290, t: "2008/09: Finanzkrise", s: 1, anchor: "middle" }] }) +
+      const c = V.cols({ w: 860, h: 320, data: d, min: -10, max: 30, ticks: 4, stagger: true, per: 9, ylabel: "%", notes: [{ x: 560, y: 46, t: "2015: +24,7 % „Leprechaun Economics“", s: 3 }, { x: 418, y: 272, t: "2008/09: Finanzkrise", s: 1, anchor: "middle" }] });
+      return o.film ? c : c +
         `<p class="vz-note">Die Sprünge ab 2015 spiegeln v. a. Buchungen multinationaler Konzerne; das modifizierte BNE (GNI*) verläuft viel ruhiger.</p>`;
     }
   };
@@ -492,7 +498,9 @@
 
   F.chinaindien = {
     cap: "China und Indien im Vergleich", src: "UN DESA (2024), IWF (2025), Weltbank (2023), UIC",
-    html: () => V.table(["", "China", "Indien"], [["Bevölkerung 2024", "≈ 1,41 Mrd.", "≈ 1,45 Mrd."], ["Kinder je Frau", "≈ 1,0", "≈ 2,0"], ["Wirtschaftsöffnung", "ab 1978", "ab 1991"], ["Rang Volkswirtschaft (nominal)", "2", "4"], ["Hochgeschwindigkeitsbahn", "> 50.000 km", "im Bau (Mumbai–Ahmedabad)"], ["Logistics Performance Index 2023", "3,7", "3,4"], ["Handelsbilanz", "hoher Überschuss", "Defizit"]], { ss: [0, 0, 1, 1, 2, 2, 3] })
+    html: (o = {}) => o.film
+      ? V.table(["", "China", "Indien"], [["Bevölkerung 2024", "≈ 1,41 Mrd.", "≈ 1,45 Mrd."], ["Öffnung", "ab 1978", "ab 1991"], ["Rang (nominal)", "2", "4"], ["Logistik-Index", "3,7", "3,4"], ["Handelsbilanz", "Überschuss", "Defizit"]], { ss: [0, 1, 2, 3, 3] })
+      : V.table(["", "China", "Indien"], [["Bevölkerung 2024", "≈ 1,41 Mrd.", "≈ 1,45 Mrd."], ["Kinder je Frau", "≈ 1,0", "≈ 2,0"], ["Wirtschaftsöffnung", "ab 1978", "ab 1991"], ["Rang Volkswirtschaft (nominal)", "2", "4"], ["Hochgeschwindigkeitsbahn", "> 50.000 km", "im Bau (Mumbai–Ahmedabad)"], ["Logistics Performance Index 2023", "3,7", "3,4"], ["Handelsbilanz", "hoher Überschuss", "Defizit"]], { ss: [0, 0, 1, 1, 2, 2, 3] })
   };
 
   F.hubfeeder = {
@@ -502,12 +510,12 @@
       let g = V.arrowDefs("hf");
       g += `<rect width="${W}" height="${H}" class="vsea" rx="10"/>`;
       const hub = [380, 165];
-      g += `<g${S(0)}><path d="M20,140 C150,150 260,160 ${hub[0]},${hub[1]} C500,170 610,180 740,190" class="vmainline"/>` + T(24, 176, "Hauptlinie: Großcontainerschiffe (> 20.000 TEU)", { cls: "vt vsm vstrong" }) + `</g>`;
+      g += `<g${S(0)}><path d="M20,140 C150,150 260,160 ${hub[0]},${hub[1]} C500,170 610,180 740,190" class="vmainline"/>` + T(24, 122, "Hauptlinie: Großcontainerschiffe (> 20.000 TEU)", { cls: "vt vsm vstrong" }) + `</g>`;
       const feeders = [[200, 60], [300, 40], [500, 50], [600, 80], [210, 280], [380, 300], [560, 280]];
       feeders.forEach((f, i) => (g += `<g${S(1)}><path d="M${hub[0]},${hub[1]} Q${(hub[0] + f[0]) / 2 + 30},${(hub[1] + f[1]) / 2} ${f[0]},${f[1]}" class="vfeeder"/><circle cx="${f[0]}" cy="${f[1]}" r="8" class="vport"/></g>`));
-      g += T(560, 312, "Feeder (Zubringer) → kleine Häfen", { cls: "vt vsm", s: 1 });
-      g += `<g${S(2)}><circle cx="${hub[0]}" cy="${hub[1]}" r="24" class="vhub"/>` + T(hub[0], hub[1] + 5, "HUB", { anchor: "middle", cls: "vt vnumt" }) + T(hub[0] + 34, hub[1] + 44, "Transshipment, z. B. Singapur", { cls: "vt vsm vacc" }) + `</g>`;
-      return svg(W, H, g);
+      g += T(744, 30, "Feeder (Zubringer) → kleine Häfen", { cls: "vt vsm", anchor: "end", s: 1 });
+      g += `<g${S(2)}><circle cx="${hub[0]}" cy="${hub[1]}" r="24" class="vhub"/>` + T(hub[0], hub[1] + 5, "HUB", { anchor: "middle", cls: "vt vnumt" }) + T(24, 318, "HUB = Umladen (Transshipment), z. B. Singapur", { cls: "vt vsm vacc" }) + `</g>`;
+      return svg(W, H, g, "vz-chart");
     }
   };
 
@@ -518,11 +526,11 @@
 
   F.landbruecken = {
     cap: "Eurasische Landbrücken: Transsib und Neue Eurasische Landbrücke", src: "nach Shu (1997), Zhang (2013)", wide: true,
-    html: () =>
+    html: (o = {}) =>
       V.map.render("eurasia", {
         routes: [
-          { pts: R.transsib, cls: "r1", label: "Transsib · 10.900 km", lpos: [100, 58.5], s: 0 },
-          { pts: R.nelb, cls: "r2", label: "Neue Eurasische Landbrücke · 11.870 km", lpos: [92, 37.5], s: 1 },
+          { pts: R.transsib, cls: "r1", label: o.film ? "Transsib" : "Transsib · 10.900 km", lpos: [100, 58.5], s: 0 },
+          { pts: R.nelb, cls: "r2", label: o.film ? "Neue Landbrücke" : "Neue Eurasische Landbrücke · 11.870 km", lpos: o.film ? [72, 47] : [92, 37.5], s: 1 },
           { pts: R.yuxinou.slice(0, 3), cls: "r2 thin", s: 2 }
         ],
         points: [
@@ -549,9 +557,10 @@
   /* ---------- Kapitel 6 ---------- */
   F.kollaps = {
     cap: "Ursachen für den Zusammenbruch der sozialistischen Planwirtschaften", src: "eigene Darstellung nach dem Skriptum", wide: true,
-    html: () => {
+    html: (o = {}) => {
       const W = 860, H = 400, cx = 430, cy = 200;
       const it = [["Fixe Preise", "Menge statt Effizienz; Angebot ≠ Nachfrage"], ["Mangelnde Arbeitsteilung", "veraltete Technik, zu breites Sortiment"], ["Überindustrialisierung", "Industrie bis ⅓ größer, hoher Ressourcenverbrauch"], ["Chronische Knappheit", "Zwischenprodukte selbst erzeugt → hohe Kosten"], ["Westverschuldung", "1971: 5,7 → 1981: 75 Mrd. USD („Schirmtheorie“)"], ["Rüstungsausgaben", "UdSSR real 25–30 % des BSP"]];
+      if (o.film) return V.cards(it.map(([t, p], i) => ({ k: "0" + (i + 1), h: t, p, tone: i === 0 ? "acc" : "", s: i + 1 })), { cols: 3 });
       let g = "";
       it.forEach(([t, p], i) => {
         const a = -Math.PI / 2 + (i / it.length) * Math.PI * 2, x = cx + Math.cos(a) * 300, y = cy + Math.sin(a) * 150;
@@ -577,7 +586,7 @@
 
   F.korridore = {
     cap: "Schienenkorridore China–Europa und Kapazitäten pro Woche (2022, gerundet)", src: "nach Breinbauer (2022a, b)", wide: true,
-    html: () =>
+    html: (o = {}) => o.film === "bars" ? V.bars({ data: [["Seeweg Fernost–Europa", 450000], ["Transsib / Nordroute", 27500], ["Mittlerer Korridor", 3000]], unit: " TEU", left: 190, rowH: 46, s: 0, max: 500000, highlight: ["Mittlerer Korridor"] }) + `<p class="vz-note">Kapazität pro Woche (2022, gerundet)</p>` :
       V.map.render("centralasia", {
         routes: [
           { pts: R.nelb.slice(2), cls: "r2", label: "Nordroute (Iron Silk Road)", lpos: [68, 55.5], s: 0 },
@@ -587,7 +596,7 @@
         ],
         points: [{ p: P.xian, t: "Xi’an", s: 0 }, { p: P.duisburg, t: "Duisburg", anchor: "end", s: 0 }, { p: P.aktau, t: "Aktau", dy: -8, s: 1 }, { p: P.baku, t: "Baku", dy: 16, s: 1 }, { p: P.tiflis, t: "Tiflis", dy: -8, s: 1 }, { p: P.constanta, t: "Constanța", anchor: "end", s: 2 }, { p: P.moskau, t: "Moskau", s: 0 }, { p: P.istanbul, t: "Istanbul", dy: 16, s: 1 }],
         labels: [{ p: [50.6, 42.2], t: "⛴ Kaspisches Meer", s: 1, cls: "small" }]
-      }) + V.bars({ data: [["Seeweg Fernost–Europa", 450000], ["Transsib / Nordroute", 27500], ["Mittlerer Korridor", 3000]], unit: " TEU", left: 190, rowH: 34, s: 4, max: 500000, highlight: ["Mittlerer Korridor"] })
+      }) + (o.film ? "" : V.bars({ data: [["Seeweg Fernost–Europa", 450000], ["Transsib / Nordroute", 27500], ["Mittlerer Korridor", 3000]], unit: " TEU", left: 190, rowH: 34, s: 4, max: 500000, highlight: ["Mittlerer Korridor"] }))
   };
 
   F.dunning = {

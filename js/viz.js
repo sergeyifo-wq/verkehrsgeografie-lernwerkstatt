@@ -10,7 +10,10 @@
   /* einfache Silbentrennung für lange deutsche Wörter (weiches Trennzeichen), damit schmale Karten nicht überlaufen */
   const ONSETS = new Set(["b","c","d","f","g","h","j","k","l","m","n","p","r","s","t","v","w","x","z","ß","bl","br","dr","fl","fr","gl","gr","kl","kn","kr","pf","pl","pr","sch","schl","schm","schn","schr","schw","sp","spr","st","str","tr","zw","ch","ph","qu","th","sk","sl"]);
   const VOW = /[aeiouäöüy]/i;
+  const HYX = { umweltauflagen: "Umwelt-auflagen", direktinvestitionen: "Direkt-investitionen", wertschöpfungsketten: "Wert-schöpfungs-ketten", supercontainerschiffe: "Super-container-schiffe", weltwirtschaftskrise: "Welt-wirtschafts-krise", industrieproduktion: "Industrie-produktion", transportkosten: "Transport-kosten", hochgeschwindigkeitsnetz: "Hoch-geschwindigkeits-netz", investitionsquote: "Investitions-quote", verkehrsinfrastruktur: "Verkehrs-infrastruktur", kontrollkapazitäten: "Kontroll-kapazitäten", umweltbelastung: "Umwelt-belastung", fachkräftemangel: "Fachkräfte-mangel", schiffskapazität: "Schiffs-kapazität", ressourcenverbrauch: "Ressourcen-verbrauch", dienstleistungsbeschäftigte: "Dienstleistungs-beschäftigte", standortfaktoren: "Standort-faktoren", verteidigungspolitik: "Verteidigungs-politik", marktorientierte: "markt-orientierte", konsummuster: "Konsum-muster", arbeitsorganisation: "Arbeits-organisation", gesellschaftlichen: "gesellschaft-lichen", individualisierung: "Individuali-sierung", produktivität: "Produktivi-tät", kooperationsabkommen: "Kooperations-abkommen", schuldenfalle: "Schulden-falle" };
   const hy = (V.hy = (w) => {
+    const ex = HYX[w.toLowerCase()];
+    if (ex) return (w[0] + ex.slice(1)).replace(/-/g, "­");
     if (w.length < 12 || /[^A-Za-zÄÖÜäöüß]/.test(w)) return w;
     const out = [];
     let i = 0, last = 0;
@@ -139,7 +142,7 @@
   /* ---------- Balkendiagramm (horizontal) ---------- */
   V.bars = (o) => {
     const data = o.data; // [label, val, val2?]
-    const W = o.w || 720, rowH = o.rowH || 30, top = o.legend ? 34 : 10, left = o.left || 150, right = 70;
+    const W = o.w || 720, rowH = o.rowH || 30, top = o.legend || o.ref ? 34 : 10, left = o.left || 150, right = 70;
     const H = top + data.length * rowH + 30;
     const nb = o.max ? { max: o.max, ticks: o.ticks || 5 } : V.nice(Math.max(...data.map((d) => Math.max(d[1] || 0, d[2] || 0))) * 1.02, o.ticks || 5);
     const max = nb.max, ticks = nb.ticks;
@@ -151,7 +154,7 @@
     }
     if (o.ref) {
       const xx = x(o.ref[0]);
-      g += `<line x1="${xx}" y1="${top - 6}" x2="${xx}" y2="${H - 26}" class="vref"${S(o.refS)}/>` + T(xx + 4, top + 8, o.ref[1], { cls: "vt vsm vacc", s: o.refS });
+      g += `<line x1="${xx}" y1="${top - 26}" x2="${xx}" y2="${H - 26}" class="vref"${S(o.refS)}/>` + T(xx + 4, top - 12, o.ref[1], { cls: "vt vsm vacc", s: o.refS });
     }
     data.forEach((d, i) => {
       const y = top + i * rowH;
@@ -237,7 +240,8 @@
       const d = s.smooth ? smooth(pts) : "M" + pts.map((p) => p.join(",")).join("L");
       g += `<path d="${d}" class="vline draw ${s.cls || "vl-" + (k + 1)}" ${s.dash ? `stroke-dasharray="${s.dash}"` : ""}${S(s.s)}/>`;
       const last = pts[pts.length - 1];
-      if (s.name) g += T(last[0] + 6, last[1] + 4 + (s.dy || 0), s.name, { cls: "vt vsm vl-t-" + (k + 1) + (s.cls ? " " + s.cls + "-t" : ""), s: s.s });
+      if (s.name && s.labelAt != null) g += T(X(s.labelAt), Y(s.vals[s.labelAt]) - 9, s.name, { anchor: "middle", cls: "vt vsm vl-t-" + (k + 1), s: s.s });
+      else if (s.name) g += T(last[0] + 6, last[1] + 4 + (s.dy || 0), s.name, { cls: "vt vsm vl-t-" + (k + 1) + (s.cls ? " " + s.cls + "-t" : ""), s: s.s });
       (s.marks || []).forEach((m) => {
         const p = [X(m.i), Y(s.vals[m.i])];
         g += `<g${S(m.s ?? s.s)}><circle cx="${p[0]}" cy="${p[1]}" r="4" class="vdot"/>` + T(p[0] + (m.dx || 0), p[1] + (m.dy ?? -10), m.t, { anchor: m.anchor || "middle", cls: "vt vsm vstrong" }) + `</g>`;
@@ -273,9 +277,10 @@
   /* ---------- Karten (d3-geo + world-atlas, lazy) ---------- */
   const VIEWS = {
     world: { proj: "naturalEarth", w: 1000, h: 520, sphere: true },
-    afroeurasia: { proj: "naturalEarth", w: 1000, h: 640, bbox: [[-25, -42], [140, 62]] },
+    afroeurasia: { proj: "naturalEarth", w: 1000, h: 620, bbox: [[-22, -38], [128, 58]] },
     eurasia: { proj: "conic", w: 1000, h: 560, bbox: [[-12, 18], [146, 66]], par: [30, 60], rot: [-70, 0] },
     europe: { proj: "conic", w: 1000, h: 760, bbox: [[-11, 35], [32, 62]], par: [40, 58], rot: [-12, 0] },
+    europefilm: { proj: "conic", w: 1000, h: 600, bbox: [[-7, 38.5], [27, 60]], par: [40, 58], rot: [-10, 0] },
     ceurope: { proj: "conic", w: 1000, h: 640, bbox: [[5, 42], [30.5, 52.5]], par: [43, 52], rot: [-17, 0] },
     eastasia: { proj: "mercator", w: 1000, h: 760, bbox: [[96, -3], [134, 42]] },
     ireland: { proj: "mercator", w: 1000, h: 640, bbox: [[-12, 49.6], [3, 56.5]] },
@@ -340,8 +345,10 @@
       for (let i = 20; i >= 0; i--) ring.push([x0, y0 + ((y1 - y0) * i) / 20]);
       p.fitExtent([[0, 0], [v.w, v.h]], { type: "MultiPoint", coordinates: ring });
     }
+    p.clipExtent([[-4, -4], [v.w + 4, v.h + 4]]);
     const path = d3.geoPath(p);
-    const land = feats.map((f) => ({ id: f.id, name: f.properties.name, d: path(f) || "" }));
+    if (path.digits) path.digits(1);
+    const land = feats.map((f) => ({ id: f.id, name: f.properties.name, d: path(f) || "" })).filter((c) => c.d);
     const sphere = path({ type: "Sphere" });
     const grat = path(d3.geoGraticule().step([20, 20])());
     return (cache[view] = { p, land, sphere, grat, v });
@@ -403,6 +410,43 @@
       try {
         const { view, o } = JSON.parse(el.getAttribute("data-map"));
         el.outerHTML = M.render(view, o);
+      } catch (e) {}
+    });
+  };
+
+  /* Beschriftungen auf Karten entzerren: jedes Label probiert mehrere Positionen, bis es nichts überdeckt. */
+  V.declutter = (root = document) => {
+    root.querySelectorAll("svg.vz-map").forEach((svg) => {
+      const vb = svg.viewBox.baseVal;
+      if (!vb || !vb.width) return;
+      const placed = [];
+      const pad = 2;
+      const box = (el) => { const b = el.getBBox(); return { x: b.x - pad, y: b.y - pad, w: b.width + 2 * pad, h: b.height + 2 * pad }; };
+      const hit = (a) => placed.some((b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
+      const inside = (a) => a.x >= 2 && a.y >= 2 && a.x + a.w <= vb.width - 2 && a.y + a.h <= vb.height - 2;
+      try {
+        svg.querySelectorAll(".vpt circle").forEach((c) => placed.push(box(c)));
+        const labs = [...svg.querySelectorAll("text.vroutelabel, text.vmaplabel"), ...svg.querySelectorAll("text.vptlabel")];
+        labs.forEach((t) => {
+          if (!t.dataset.ox) { t.dataset.ox = t.getAttribute("x"); t.dataset.oy = t.getAttribute("y"); t.dataset.oa = t.getAttribute("text-anchor") || "start"; }
+          const x0 = +t.dataset.ox, y0 = +t.dataset.oy, a0 = t.dataset.oa;
+          const fs = parseFloat(getComputedStyle(t).fontSize) || 13;
+          let cands;
+          if (t.classList.contains("vptlabel")) {
+            const c = t.parentNode.querySelector("circle");
+            const cx = +c.getAttribute("cx"), cy = +c.getAttribute("cy"), g = fs * 0.5 + 5;
+            cands = [[x0, y0, a0], [cx + g, cy + fs * 0.35, "start"], [cx - g, cy + fs * 0.35, "end"], [cx, cy - g, "middle"], [cx, cy + fs + g * 0.5, "middle"],
+              [cx + g, cy - g * 0.6, "start"], [cx - g, cy - g * 0.6, "end"], [cx + g, cy + fs + 2, "start"], [cx - g, cy + fs + 2, "end"]];
+          } else cands = [0, -1, 1, -2, 2, -3, 3].map((k) => [x0, y0 + k * fs * 1.25, a0]);
+          let best = null;
+          for (const [x, y, a] of cands) {
+            t.setAttribute("x", x); t.setAttribute("y", y); t.setAttribute("text-anchor", a);
+            const b = box(t);
+            if (!hit(b) && inside(b)) { best = b; break; }
+          }
+          if (!best) { t.setAttribute("x", x0); t.setAttribute("y", y0); t.setAttribute("text-anchor", a0); best = box(t); }
+          placed.push(best);
+        });
       } catch (e) {}
     });
   };

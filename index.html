@@ -5,22 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Verkehrsgeografie Lernwerkstatt</title>
 <meta name="description" content="Interaktive Lernplattform zur Wirtschafts- und Verkehrsgeografie: Erklärvideos, Schaubilder, Karten, Glossar, Lernkarten und Klausurtraining mit offenen Fragen.">
-<meta name="theme-color" content="#0f3d5c">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f3d5c'/%3E%3Cpath d='M12 40 C24 18 40 46 52 22' stroke='%23ff8a3d' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='40' r='5' fill='%23fff'/%3E%3Ccircle cx='52' cy='22' r='5' fill='%23fff'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#1c1c1c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='6' fill='%23ff6200'/%3E%3Cpath d='M12 14h12l8 22 8-22h12L38 50H26z' fill='%231a1a1a'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="css/style.css">
-<script>try{var m=location.search.match(/theme=(light|dark)/);var t=m?m[1]:JSON.parse(localStorage.getItem("vg:theme")||"null");if(t&&t!=="auto")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href="css/style.css?v=3">
+<script>try{var m=location.search.match(/theme=(light|dark)/);var t=m?m[1]:JSON.parse(localStorage.getItem("vg:theme")||"null");document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
 </head>
 <body>
 <a class="skip" href="#main">Zum Inhalt springen</a>
 <header class="top">
   <div class="top-in">
     <a class="brand" href="#/start" aria-label="Startseite">
-      <svg viewBox="0 0 40 40" width="36" height="36" aria-hidden="true"><rect width="40" height="40" rx="9" class="b-bg"/><path d="M7 26 C15 10 25 30 33 13" class="b-line"/><circle cx="7" cy="26" r="3.4" class="b-dot"/><circle cx="20" cy="20" r="3.4" class="b-dot"/><circle cx="33" cy="13" r="3.4" class="b-dot"/></svg>
-      <span>Verkehrsgeografie<small>Lernwerkstatt · Wirtschafts- und Verkehrsgeografie</small></span>
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M6 8h8l6 15 6-15h8L24 33h-8z"/><rect x="6" y="35" width="28" height="2"/></svg></span>
+      <span class="wordmark">Verkehrs<br>geografie</span>
     </a>
+    <div class="top-meta" aria-hidden="true">
+      <span>Lernwerkstatt für die Klausur</span>
+      <span>Status: <b>Vorbereitung aktiv</b></span>
+      <span>Wirtschaft / Verkehr / Globalisierung</span>
+    </div>
     <nav class="tabs" aria-label="Bereiche">
       <a href="#/start" data-tab="start">Start</a>
       <a href="#/kapitel/k2" data-tab="kapitel">Lernen</a>
@@ -29,13 +34,18 @@
       <a href="#/glossar" data-tab="glossar">Glossar</a>
       <a href="#/karten" data-tab="karten">Lernkarten</a>
       <a href="#/labor" data-tab="labor">Labor</a>
-      <a href="#/kompass" data-tab="kompass">Klausur-Kompass</a>
+      <a href="#/kompass" data-tab="kompass">Kompass</a>
     </nav>
     <div class="top-tools">
-      <button class="iconbtn" id="btn-search" title="Suche (Strg + K)" aria-label="Suche"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-      <button class="iconbtn" id="btn-theme" title="Hell / Dunkel" aria-label="Farbschema wechseln"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z" fill="currentColor"/></svg></button>
+      <button class="iconbtn" id="btn-search" title="Suche (Strg + K)" aria-label="Suche"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2"/></svg></button>
+      <button class="iconbtn" id="btn-theme" title="Dunkel / Papier" aria-label="Farbschema wechseln"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <a class="hatch-btn" href="#/pruefung">Klausur starten</a>
     </div>
   </div>
+  <div class="ticker" aria-hidden="true"><div class="ticker-in">
+    <span>Belt and Road</span><i>■</i><span>Fordismus → Postfordismus</span><i>■</i><span>Hyperglobalisierung</span><i>■</i><span>Slowbalisation</span><i>■</i><span>Zentrum / Peripherie</span><i>■</i><span>Christaller K = 3 · 4 · 7</span><i>■</i><span>Hägerstrand</span><i>■</i><span>Seefracht · TEU · BDI</span><i>■</i><span>Keltischer Tiger</span><i>■</i><span>Mittlerer Korridor</span><i>■</i><span>Wien: 220 Regional HQs</span><i>■</i>
+    <span>Belt and Road</span><i>■</i><span>Fordismus → Postfordismus</span><i>■</i><span>Hyperglobalisierung</span><i>■</i><span>Slowbalisation</span><i>■</i><span>Zentrum / Peripherie</span><i>■</i><span>Christaller K = 3 · 4 · 7</span><i>■</i><span>Hägerstrand</span><i>■</i><span>Seefracht · TEU · BDI</span><i>■</i><span>Keltischer Tiger</span><i>■</i><span>Mittlerer Korridor</span><i>■</i><span>Wien: 220 Regional HQs</span><i>■</i>
+  </div></div>
 </header>
 <main id="main" class="wrap" tabindex="-1"></main>
 <div id="gl-pop" class="gl-pop" role="dialog" hidden></div>
@@ -47,25 +57,30 @@
   </div>
 </div>
 <footer class="foot">
-  <p>Private Lernhilfe auf Basis des Lernbuchs „Wirtschafts- und Verkehrsgeografie“ (nach dem Skriptum von Prof. (FH) Mag. Dr. Andreas Breinbauer, FH des BFI Wien, Oktober 2026). Alle Schaubilder neu gezeichnet; Kartengrundlage: Natural Earth / world-atlas. Ersetzt weder Vorlesung noch Foliensatz. Lernfortschritt wird nur in diesem Browser gespeichert.</p>
+  <div class="foot-in">
+    <div class="foot-grid">
+      <span>VG // Lernwerkstatt</span><span>Ausgabe: Oktober 2026</span><span>Sektor: FH des BFI Wien</span><span>Speicher: nur dieser Browser</span>
+    </div>
+    <p>Private Lernhilfe auf Basis des Lernbuchs „Wirtschafts- und Verkehrsgeografie“ (nach dem Skriptum von Prof. (FH) Mag. Dr. Andreas Breinbauer, FH des BFI Wien, Oktober 2026). Alle Schaubilder neu gezeichnet; Kartengrundlage: Natural Earth / world-atlas. Ersetzt weder Vorlesung noch Foliensatz.</p>
+  </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/d3-array@3.2.4/dist/d3-array.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-geo@3.1.1/dist/d3-geo.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" defer></script>
-<script src="js/viz.js" defer></script>
-<script src="js/figs.js" defer></script>
-<script src="data/k1.js" defer></script>
-<script src="data/k2.js" defer></script>
-<script src="data/k3.js" defer></script>
-<script src="data/k4.js" defer></script>
-<script src="data/k5.js" defer></script>
-<script src="data/k6.js" defer></script>
-<script src="data/glossar.js" defer></script>
-<script src="data/fragen.js" defer></script>
-<script src="js/films.js" defer></script>
-<script src="js/player.js" defer></script>
-<script src="js/lab.js" defer></script>
-<script src="js/app.js" defer></script>
+<script src="js/viz.js?v=3" defer></script>
+<script src="js/figs.js?v=3" defer></script>
+<script src="data/k1.js?v=3" defer></script>
+<script src="data/k2.js?v=3" defer></script>
+<script src="data/k3.js?v=3" defer></script>
+<script src="data/k4.js?v=3" defer></script>
+<script src="data/k5.js?v=3" defer></script>
+<script src="data/k6.js?v=3" defer></script>
+<script src="data/glossar.js?v=3" defer></script>
+<script src="data/fragen.js?v=3" defer></script>
+<script src="js/films.js?v=3" defer></script>
+<script src="js/player.js?v=3" defer></script>
+<script src="js/lab.js?v=3" defer></script>
+<script src="js/app.js?v=3" defer></script>
 </body>
 </html>

@@ -125,7 +125,7 @@
     const fn = { start: viewStart, kapitel: viewKapitel, filme: viewFilme, film: viewFilm, pruefung: viewPruefung, glossar: viewGlossar, karten: viewKarten, labor: viewLabor, kompass: viewKompass }[view] || viewStart;
     fn(a, b);
     if (!(view === "kapitel" && b) && prev.split("/")[0] + prev.split("/")[1] !== view + a) window.scrollTo(0, 0);
-    V.map.load().then(() => V.map.hydrate(main));
+    V.map.load().then(() => { V.map.hydrate(main); requestAnimationFrame(() => V.declutter(main)); if (document.fonts) document.fonts.ready.then(() => V.declutter(main)); });
   }
   window.addEventListener("hashchange", route);
 
@@ -141,54 +141,64 @@
     const sure = FR.filter((q) => q.sicher);
     const sureFilm = { "q-bri": "f14", "q-kennz": "f7", "q-hyper": "f7", "q-2008": "f7", "q-irland": "f12" };
     const weak = Object.entries(qs).filter(([id]) => frById[id]).map(([id, s]) => [frById[id], s.last]).sort((a, b) => a[1] - b[1]).slice(0, 3);
+    const nk = nextKap();
+    const stripes = Array.from({ length: 8 }, (_, i) => `<rect x="262" y="${i * 20}" width="${i === 0 ? 52 : i === 1 ? 64 : 76}" height="12"/>`).join("");
     main.innerHTML = `
       <section class="hero">
         <div class="hero-main">
-          <svg class="hero-lines" viewBox="0 0 400 300" aria-hidden="true"><g fill="none" stroke-width="10" stroke-linecap="round">
-            <path d="M10 250 C120 240 140 120 260 110 S380 40 400 30" stroke="#e8590c"/><path d="M0 180 C100 190 160 260 280 240 S370 200 400 210" stroke="#1c7ed6"/>
-            <path d="M60 300 C80 200 200 200 220 120 S300 10 330 0" stroke="#2f9e44"/></g>
-            <g fill="#fff" stroke="#0f3d5c" stroke-width="4"><circle cx="260" cy="110" r="9"/><circle cx="280" cy="240" r="9"/><circle cx="220" cy="122" r="9"/><circle cx="140" cy="168" r="9"/></g></svg>
-          <span class="eyebrow" style="color:#ffb380">Wirtschafts- und Verkehrsgeografie · Semester 1</span>
-          <h1>Den ganzen Stoff lernen – mit Filmen, Karten und echtem Klausurtraining.</h1>
+          <div class="hero-meta"><span>Lerneinheit: Wirtschafts- &amp; Verkehrsgeografie</span><span><i class="sq"></i>Status: Klausurvorbereitung</span></div>
+          <svg class="hero-glyph" viewBox="0 0 340 200" aria-hidden="true">
+            <path d="M0 0h44l34 104 34-104h44L100 160H56z"/>
+            <path d="M176 18 194 0h56v40h-34v80h18v-26h-12V66h44v76l-18 18h-58l-18-18z"/>
+            ${stripes}
+            <text x="338" y="192" text-anchor="end" font-family="Share Tech Mono" font-size="17" fill="#161616">KLAUSUR // 26</text>
+          </svg>
+          <h1>Den ganzen Stoff. Einsatzbereit für die Klausur.</h1>
           <p>Sechs Kapitel als Liniennetz, 15 Erklärfilme mit Sprachausgabe, über 40 neu gezeichnete Schaubilder und Karten, 230 Glossarbegriffe und ein Prüfungsmodus mit offenen Fragen – so wie in der Klausur.</p>
           <div class="row">
-            <a class="btn accent" href="#/kapitel/${nextKap().id}">▶ Weiterlernen: Kapitel ${nextKap().nr}</a>
+            <a class="btn dark" href="#/kapitel/${nk.id}">▶ Weiterlernen: Kapitel ${nk.nr}</a>
             <a class="btn" href="#/pruefung">Klausur simulieren</a>
             <a class="btn" href="#/kompass">Was kommt dran?</a>
           </div>
         </div>
         <div class="hero-side">
-          <div class="card count">
-            <svg class="ring" viewBox="0 0 100 100"><circle class="tr" cx="50" cy="50" r="40"/><circle class="vl" cx="50" cy="50" r="40" stroke-dasharray="${(pct / 100) * 251.3} 251.3"/><text x="50" y="57" text-anchor="middle" font-size="22">${pct}%</text></svg>
-            <div><b style="font-family:var(--f-display);font-size:18px">Lernfortschritt</b><p class="empty" style="margin:2px 0 0">${done} von ${total} Abschnitten als gelernt markiert · ${Object.keys(seen).length} von ${FILMS.length} Filmen gesehen</p></div>
+          <div class="card framed">
+            <h3>Systemstatus</h3>
+            <div class="count">
+              <svg class="ring" viewBox="0 0 100 100"><circle class="tr" cx="50" cy="50" r="40"/><circle class="vl" cx="50" cy="50" r="40" stroke-dasharray="${(pct / 100) * 251.3} 251.3"/><text x="50" y="57" text-anchor="middle" font-size="22">${pct}%</text></svg>
+              <ul class="spec"><li><span>Abschnitte</span><i></i><b>${done}/${total}</b></li><li><span>Filme gesehen</span><i></i><b>${Object.keys(seen).length}/${FILMS.length}</b></li><li><span>Fragen geübt</span><i></i><b>${Object.keys(qs).filter((id) => frById[id]).length}/${FR.length}</b></li></ul>
+            </div>
           </div>
-          <div class="card count">
-            <div class="num">${days == null ? "–" : days < 0 ? "✓" : days}</div>
-            <div><b style="font-family:var(--f-display);font-size:18px">${days == null ? "Klausurtermin eintragen" : days < 0 ? "Klausur vorbei" : days === 0 ? "Heute ist Klausur – viel Erfolg!" : days === 1 ? "Tag bis zur Klausur" : "Tage bis zur Klausur"}</b>
-              <div class="row" style="margin-top:6px"><label class="empty" for="examdate">Datum:</label><input id="examdate" type="date" value="${esc(exam)}"></div></div>
+          <div class="card">
+            <h3>Countdown</h3>
+            <div class="count">
+              <div class="num">${days == null ? "--" : days < 0 ? "00" : String(days).padStart(2, "0")}</div>
+              <div><div class="lbl">${days == null ? "Klausurtermin eintragen" : days < 0 ? "Klausur vorbei" : days === 0 ? "Heute ist Klausur" : days === 1 ? "Tag bis zur Klausur" : "Tage bis zur Klausur"}</div>
+                <div class="row" style="margin-top:8px;gap:8px"><label class="eyebrow" for="examdate">Datum</label><input id="examdate" type="date" value="${esc(exam)}"></div></div>
+            </div>
           </div>
-          <div class="card" style="display:grid;gap:8px">
-            <b style="font-family:var(--f-display);font-size:16px">Klausur-Steckbrief</b>
-            <div class="row"><span class="chip">60–90 Minuten</span><span class="chip">kein Multiple Choice</span><span class="chip">ganze Sätze</span><span class="chip">Belt and Road kommt sicher</span></div>
+          <div class="card">
+            <h3>Klausur-Steckbrief</h3>
+            <ul class="spec"><li><span>Dauer</span><i></i><b>60–90 min</b></li><li><span>Format</span><i></i><b>offene Fragen</b></li><li><span>Multiple Choice</span><i></i><b>nein</b></li><li><span>Antworten</span><i></i><b>ganze Sätze</b></li><li><span>Belt and Road</span><i></i><b>kommt sicher</b></li></ul>
           </div>
         </div>
       </section>
 
-      <div class="sec-h"><h2>Diese 5 Fragen kommen sicher</h2><a class="btn sm" href="#/pruefung/sicher">Alle 5 hintereinander üben</a></div>
-      <div class="sure">${sure.map((q, i) => `<div class="sure-item"><span class="n">${i + 1}</span><div><b>${esc(q.q)}</b><small>Kapitel ${kapById[q.kap].nr} · ${q.pts} Punkte${qs[q.id] ? ` · zuletzt ${Math.round(qs[q.id].last * 100)} %` : ""}</small></div>
+      <div class="sec-h"><h2><span class="n">01</span>Diese 5 Fragen kommen sicher</h2><a class="btn sm" href="#/pruefung/sicher">Alle 5 hintereinander üben</a></div>
+      <div class="sure">${sure.map((q, i) => `<div class="sure-item"><span class="n">0${i + 1}</span><div><b>${esc(q.q)}</b><small>Kapitel ${kapById[q.kap].nr} · ${q.pts} Punkte${qs[q.id] ? ` · zuletzt ${Math.round(qs[q.id].last * 100)} %` : ""}</small></div>
         <div class="row"><a class="btn sm" href="#/film/${sureFilm[q.id]}">▶ Film</a><a class="btn sm primary" href="#/pruefung/frage/${q.id}">Antwort schreiben</a></div></div>`).join("")}</div>
 
-      <div class="sec-h"><h2>Das Liniennetz: alle Kapitel</h2><span class="empty">Orange markiert = Schwerpunkt laut Professor</span></div>
+      <div class="sec-h"><h2><span class="n">02</span>Das Liniennetz: alle Kapitel</h2><span class="eyebrow">Orange = Schwerpunkt laut Professor</span></div>
       <div class="lines">${KAP.map((k) => {
         const p = Math.round(kapProgress(k) * 100);
-        return `<a class="line-card" href="#/kapitel/${k.id}" style="--kc:${kc(k.id)}"><span class="ln">${k.nr}</span><div><h3>${esc(k.title)}</h3><p>${esc(k.teaser)}</p><div class="bar"><i style="width:${p}%"></i></div></div>
-          <div class="meta">${badge(k.prio)}<small class="empty">${p}% · ${k.films.length} Film${k.films.length > 1 ? "e" : ""}</small></div></a>`;
+        return `<a class="line-card" href="#/kapitel/${k.id}" style="--kc:${kc(k.id)}"><span class="ln">0${k.nr}</span><div><h3>${esc(k.title)}</h3><p>${esc(k.teaser)}</p><div class="bar"><i style="width:${p}%"></i></div></div>
+          <div class="meta">${badge(k.prio)}<span>${p}% gelernt · ${k.films.length} Film${k.films.length > 1 ? "e" : ""}</span></div></a>`;
       }).join("")}</div>
-      ${weak.length ? `<div class="sec-h"><h2>Hier solltest du nachlegen</h2></div><div class="grid g3">${weak.map(([q, s]) => `<a class="card" style="text-decoration:none;color:inherit;display:grid;gap:6px" href="#/pruefung/frage/${q.id}"><span class="eyebrow">Kapitel ${kapById[q.kap].nr} · zuletzt ${Math.round(s * 100)} %</span><b style="font-family:var(--f-display)">${esc(q.q)}</b></a>`).join("")}</div>` : ""}
-      <div class="sec-h"><h2>Was du hier findest</h2></div>
-      <div class="grid g3">
+      ${weak.length ? `<div class="sec-h"><h2><span class="n">!!</span>Hier solltest du nachlegen</h2></div><div class="grid g3">${weak.map(([q, s]) => `<a class="card" style="text-decoration:none;color:inherit;display:grid;gap:6px" href="#/pruefung/frage/${q.id}"><span class="eyebrow">Kapitel ${kapById[q.kap].nr} · zuletzt ${Math.round(s * 100)} %</span><b style="font-family:var(--f-display);font-weight:600">${esc(q.q)}</b></a>`).join("")}</div>` : ""}
+      <div class="sec-h"><h2><span class="n">03</span>Ausrüstung</h2></div>
+      <div class="feat">
         ${[["#/filme", "Erklärfilme", "15 animierte Filme mit Sprachausgabe und Untertiteln – ideal zum Einstieg oder Wiederholen."], ["#/pruefung", "Prüfungsmodus", "Offene Fragen mit Timer, Erwartungshorizont, Musterantwort und Notenschätzung."], ["#/glossar", "Glossar", "230 Fachbegriffe – überall im Text antippen, um die Erklärung zu sehen."], ["#/karten", "Lernkarten", "Begriffe und Kontrollfragen im Karteikasten-System (Leitner)."], ["#/labor", "Labor", "Christaller, Hägerstrand, Demografischer Übergang und Suez-Rechner zum Ausprobieren."], ["#/kompass", "Klausur-Kompass", "Schwerpunkte des Professors, Lernplan, Antwort-Rezept und Zeitleiste."]]
-          .map(([h, t, p]) => `<a class="card" href="${h}" style="text-decoration:none;color:inherit;display:grid;gap:6px"><b style="font-family:var(--f-display);font-size:18px">${t} →</b><span class="empty" style="font-size:14.5px">${p}</span></a>`).join("")}
+          .map(([h, t, p], i) => `<a href="${h}"><span class="k">MODUL 0${i + 1}</span><b>${t} →</b><span>${p}</span></a>`).join("")}
       </div>`;
     $("#examdate").onchange = (e) => { SS("examDate", e.target.value); viewStart(); };
   }
@@ -212,7 +222,7 @@
     return `<a class="filmcard" href="#/film/${f.id}" style="--kc:${kc(f.kap)}"><div class="thumb">
       <div class="tmini fpal" aria-hidden="true">${(() => { try { return f.scenes[f.thumb || 0].v(); } catch (e) { return ""; } })()}</div>
       <span class="play">▶</span><span class="dur">≈ ${fmtMin(filmSeconds(f))}</span>${seen ? `<span class="badge ok seen">✓ gesehen</span>` : f.prio === "K" ? `<span class="badge K seen">Klausur sicher</span>` : ""}</div>
-      <div class="body"><small>Kapitel ${k.nr} · ${f.scenes.length} Szenen</small><b>${esc(f.t)}</b><small>${esc(f.sub || "")}</small></div></a>`;
+      <div class="body"><small class="m">Kapitel 0${k.nr} // ${f.scenes.length} Szenen</small><b>${esc(f.t)}</b><small>${esc(f.sub || "")}</small></div></a>`;
   }
   function viewKapitel(id, sec) {
     const k = kapById[id] || KAP[0];
@@ -222,7 +232,7 @@
       <article class="article">
         <header class="k-head">
           <span class="eyebrow">Kapitel ${k.nr} ${badge(k.prio)}</span>
-          <h1>${esc(k.title)}</h1>
+          <h1><span class="kn">0${k.nr}</span>${esc(k.title)}</h1>
           <p class="lede">${esc(k.teaser)}</p>
           <details><summary class="eyebrow" style="cursor:pointer">Lernziele – nach diesem Kapitel kannst du …</summary><ul class="goals" style="margin-top:8px">${k.lernziele.map((g) => `<li>${esc(g)}</li>`).join("")}</ul></details>
         </header>
@@ -257,7 +267,7 @@
 
   /* ================= Filme ================= */
   function viewFilme() {
-    main.innerHTML = `<div class="k-head" style="--kc:var(--accent)"><span class="eyebrow">Erklärfilme</span><h1>15 Filme – der ganze Stoff zum Zuschauen</h1>
+    main.innerHTML = `<div class="k-head" style="--kc:var(--orange)"><span class="eyebrow">Erklärfilme</span><h1>15 Filme – der ganze Stoff zum Zuschauen</h1>
       <p class="lede">Animierte Schaubilder und Karten mit Sprachausgabe. Tipp: Ton an, Tempo nach Geschmack einstellen. Die Filme zu den sicheren Klausurfragen sind markiert.</p></div>
       ${KAP.map((k) => `<div class="sec-h"><h2 style="display:flex;gap:10px;align-items:center"><span class="kdot" style="--kc:${kc(k.id)}"></span>Kapitel ${k.nr} · ${esc(k.short)}</h2>${badge(k.prio)}</div>
         <div class="filmrow">${FILMS.filter((f) => f.kap === k.id).map(filmCard).join("")}</div>`).join("")}`;
@@ -268,9 +278,9 @@
     const i = FILMS.indexOf(f), nx = FILMS[i + 1];
     main.innerHTML = `<div class="row" style="margin-bottom:12px"><a class="btn sm ghost" href="#/filme">← alle Filme</a><a class="btn sm ghost" href="#/kapitel/${k.id}">Kapitel ${k.nr}: ${esc(k.short)}</a>${f.prio ? badge(f.prio) : ""}</div>
       <div class="film-page"><div><div id="pl"></div><p class="player-note">Leertaste = Play/Pause · ← → = Szene wechseln. Die Sprachausgabe nutzt die Stimmen deines Browsers/Systems (Edge und Chrome klingen am natürlichsten).</p></div>
-      <aside class="film-side"><div class="card"><h3 style="font-size:16px;margin-bottom:8px">Szenen</h3><ol class="scenes">${f.scenes.map((s, j) => `<li><button data-i="${j}"><span>${j + 1}</span>${esc(s.h)}</button></li>`).join("")}</ol></div>
-      <details class="card"><summary style="cursor:pointer;font-family:var(--f-display);font-weight:800">Mitlesen (Transkript)</summary><div class="transcript">${f.scenes.map((s, j) => `<h4>${j + 1}. ${esc(s.h)}</h4>${s.say.map((t, m) => `<p data-k="${j}-${m}">${esc(t)}</p>`).join("")}`).join("")}</div></details>
-      ${nx ? `<a class="card" href="#/film/${nx.id}" style="text-decoration:none;color:inherit"><span class="eyebrow">Nächster Film</span><br><b style="font-family:var(--f-display)">${esc(nx.t)} →</b></a>` : ""}</aside></div>`;
+      <aside class="film-side"><div class="card framed"><h3>Szenenliste</h3><ol class="scenes">${f.scenes.map((s, j) => `<li><button data-i="${j}"><span>${j + 1}</span>${esc(s.h)}</button></li>`).join("")}</ol></div>
+      <details class="card"><summary>Mitlesen (Transkript)</summary><div class="transcript">${f.scenes.map((s, j) => `<h4>${j + 1}. ${esc(s.h)}</h4>${s.say.map((t, m) => `<p data-k="${j}-${m}">${esc(t)}</p>`).join("")}`).join("")}</div></details>
+      ${nx ? `<a class="card" href="#/film/${nx.id}" style="text-decoration:none;color:inherit"><span class="eyebrow">Nächster Film</span><br><b style="font-family:var(--f-display);font-weight:600;font-size:17px">${esc(nx.t)} →</b></a>` : ""}</aside></div>`;
     const ctl = Player.mount($("#pl"), f, {
       nextHtml: nx ? `<a class="btn accent" href="#/film/${nx.id}">Nächster Film →</a>` : "",
       onScene: (j) => $$(".scenes button").forEach((b) => b.setAttribute("aria-current", +b.dataset.i === j)),
@@ -328,14 +338,14 @@
     const hist = LS("hist", []);
     const cfg = LS("examCfg", { mode: "sim", n: 5, dur: 75, bri: true, kaps: KAP.filter((k) => k.prio !== "-").map((k) => k.id) });
     main.innerHTML = `<div class="exam">
-      <div class="panel">
-        <span class="eyebrow">Prüfungsmodus</span>
+      <div class="panel framed">
+        <span class="eyebrow">Prüfungsmodus // Kein Multiple Choice</span>
         <h2>Klausur wie echt: offene Fragen, ganze Sätze, Zeitdruck</h2>
         <p class="lede">Die Klausur dauert 60–90 Minuten, hat <b>keine Multiple-Choice-Fragen</b> und verlangt Antworten <b>in ganzen Sätzen</b>. Nach dem Abgeben vergleichst du deine Antwort mit dem Erwartungshorizont; die Seite markiert erkannte Punkte vor – du entscheidest selbst, ob sie wirklich erfüllt sind.</p>
         <div class="modes">
-          <button class="mode" data-m="sim" aria-pressed="${cfg.mode === "sim"}"><b>🕒 Klausursimulation</b><small>Mehrere Fragen, Timer, Auswertung mit Note am Ende.</small></button>
-          <button class="mode" data-m="practice" aria-pressed="${cfg.mode === "practice"}"><b>✍️ Übungsmodus</b><small>Eine Frage nach der anderen, sofortiges Feedback mit Musterantwort.</small></button>
-          <button class="mode" data-m="sicher" aria-pressed="${cfg.mode === "sicher"}"><b>⭐ Sichere Fragen</b><small>Die 5 Fragen, die laut Professor sicher kommen – inkl. Belt and Road.</small></button>
+          <button class="mode" data-m="sim" aria-pressed="${cfg.mode === "sim"}"><span class="k">Modus 01</span><b>Klausursimulation</b><small>Mehrere Fragen, Timer, Auswertung mit Note am Ende.</small></button>
+          <button class="mode" data-m="practice" aria-pressed="${cfg.mode === "practice"}"><span class="k">Modus 02</span><b>Übungsmodus</b><small>Eine Frage nach der anderen, sofortiges Feedback mit Musterantwort.</small></button>
+          <button class="mode" data-m="sicher" aria-pressed="${cfg.mode === "sicher"}"><span class="k">Modus 03</span><b>Sichere Fragen</b><small>Die 5 Fragen, die laut Professor sicher kommen – inkl. Belt and Road.</small></button>
         </div>
         <div class="opts">
           <div class="opt" data-for="sim"><span class="lbl">Dauer</span><div class="seg" id="o-dur">${[60, 75, 90].map((m) => `<button data-v="${m}" aria-pressed="${cfg.dur === m}">${m} min</button>`).join("")}</div></div>
@@ -346,7 +356,7 @@
         <div class="startbar"><span class="sum" id="o-sum"></span><button class="btn accent" id="o-go">Los geht’s →</button></div>
       </div>
       ${hist.length ? `<div class="panel"><h3>Bisherige Simulationen</h3><div class="hist">${hist.slice().reverse().slice(0, 10).map((h) => `<div class="hrow"><span class="d">${new Date(h.t).toLocaleDateString("de-AT")}</span><div class="bar"><i style="width:${h.pct}%;--kc:${h.pct >= 50 ? "var(--ok)" : "var(--bad)"}"></i></div><b>${Math.round(h.pct)} %</b><span class="gx">${grade(h.pct)[0]} (${h.n} Fragen)</span></div>`).join("")}</div></div>` : ""}
-      <div class="panel"><h3>Alle ${FR.length} Fragen im Pool</h3><div class="qa">${KAP.map((k) => FR.filter((q) => q.kap === k.id).map((q) => `<a class="chip" style="display:block;border-left:5px solid ${kc(k.id)};border-radius:8px;padding:8px 12px" href="#/pruefung/frage/${q.id}">${q.sicher ? "⭐ " : ""}${esc(q.q)} <span class="empty">· ${maxPts(q)} P.</span></a>`).join("")).join("")}</div></div>
+      <div class="panel"><h3>Alle ${FR.length} Fragen im Pool</h3><div class="qa">${KAP.map((k) => `<span class="eyebrow" style="margin-top:10px;color:${kc(k.id)}">Kapitel 0${k.nr} // ${esc(k.short)}</span>` + FR.filter((q) => q.kap === k.id).map((q) => `<a class="poolq" style="--kc:${kc(k.id)}" href="#/pruefung/frage/${q.id}">${q.sicher ? '<span class="badge K">sicher</span> ' : ""}${esc(q.q)}<span class="p">${maxPts(q)} P.</span></a>`).join("")).join("")}</div></div>
     </div>`;
     const save = () => SS("examCfg", cfg);
     const upd = () => {
@@ -440,6 +450,7 @@
     return `<div class="rv" data-q="${q.id}">
       <div class="rv-top"><span class="badge U">Kapitel ${kapById[q.kap].nr}</span>${q.sicher ? badge("K") : ""}<b>${esc(q.q)}</b><span class="sc" id="${prefix}-sc-${q.id}"></span></div>
       <div><span class="eyebrow">Deine Antwort</span><div class="youranswer ${text && text.trim() ? "" : "empty"}">${text && text.trim() ? esc(text) : "keine Antwort"}</div><div class="wstat" style="margin-top:6px">${styleLine(text, q)}</div></div>
+      ${(() => { const si = styleInfo(text, q); return si.w && si.w < si.target * 0.5 ? `<div class="confirm"><b>Achtung: Deine Antwort ist sehr kurz (${si.w} von ≈ ${si.target} Wörtern).</b><span>Die automatische Erkennung findet nur Stichwörter. In der Klausur gibt es Punkte für Erklärungen – prüfe die Haken unten streng.</span></div>` : ""; })()}
       <div><span class="eyebrow">Erwartungshorizont – hake ab, was du wirklich erklärt hast</span>
       <ul class="kp">${q.kp.map((k, i) => `<li><label><input type="checkbox" data-i="${i}" ${marks[i] ? "checked" : ""}><span>${esc(k[0])}<span class="auto ${auto[i] ? "y" : "n"}">${auto[i] ? "erkannt" : "nicht erkannt"}</span></span><span class="pt">${k[1]} P.</span></label></li>`).join("")}</ul></div>
       <details><summary class="btn sm">Musterantwort in ganzen Sätzen anzeigen</summary><div class="model" style="margin-top:8px">${esc(q.model)}</div></details>
@@ -466,7 +477,7 @@
         <div class="grade"><span class="eyebrow">Geschätzte Note${ex.timeout ? " · Zeit abgelaufen" : ""}</span><div class="g">${g[0]} (${g[1]})</div>
         <div class="stats"><div class="stat"><b>${pts} / ${total}</b><small>Punkte</small></div><div class="stat"><b>${used} / ${ex.dur}</b><small>Minuten</small></div><div class="stat"><b>${qs.length}</b><small>Fragen</small></div></div>
         <p class="empty" style="margin:0">Notenschlüssel zur Orientierung: ab 87,5 % Sehr gut · 75 % Gut · 62,5 % Befriedigend · 50 % Genügend. Die Haken unten sind vorausgefüllt – korrigiere sie ehrlich, die Note rechnet sofort neu.</p></div></div>
-        <div class="grid g2">${Object.entries(byK).map(([k, [p, m]]) => `<div><div class="row" style="justify-content:space-between;font-family:var(--f-display);font-size:14px"><span><span class="kdot" style="--kc:${kc(k)}"></span> Kapitel ${kapById[k].nr} · ${esc(kapById[k].short)}</span><b>${p}/${m}</b></div><div class="bar" style="--kc:${kc(k)}"><i style="width:${(p / m) * 100}%"></i></div></div>`).join("")}</div>`;
+        <div class="grid g2">${Object.entries(byK).map(([k, [p, m]]) => `<div><div class="row" style="justify-content:space-between;font-family:var(--f-mono);font-size:13px;text-transform:uppercase"><span><span class="kdot" style="--kc:${kc(k)}"></span> Kapitel ${kapById[k].nr} · ${esc(kapById[k].short)}</span><b>${p}/${m}</b></div><div class="bar" style="--kc:${kc(k)}"><i style="width:${(p / m) * 100}%"></i></div></div>`).join("")}</div>`;
       const hist = LS("hist", []); if (ex.histIdx != null && hist[ex.histIdx]) { hist[ex.histIdx].pct = pct; SS("hist", hist); }
       SS("exam", ex);
     };
@@ -507,12 +518,12 @@
     const params = new URLSearchParams(location.hash.split("?")[1] || "");
     const want = params.get("t");
     let filt = "", kf = "all";
-    main.innerHTML = `<div class="k-head" style="--kc:var(--brand-2)"><span class="eyebrow">Glossar</span><h1>${GL.length} Fachbegriffe von A bis Z</h1><p class="lede">Alle Begriffe aus der Randspalte des Lernbuchs plus die Verkehrsbegriffe aus dem Anhang. Im Lerntext sind sie unterstrichen – antippen zeigt die Erklärung.</p></div>
-      <div class="card" style="margin-top:18px;display:grid;gap:12px;position:sticky;top:70px;z-index:5">
+    main.innerHTML = `<div class="k-head" style="--kc:var(--info)"><span class="eyebrow">Glossar</span><h1>${GL.length} Fachbegriffe von A bis Z</h1><p class="lede">Alle Begriffe aus der Randspalte des Lernbuchs plus die Verkehrsbegriffe aus dem Anhang. Im Lerntext sind sie unterstrichen – antippen zeigt die Erklärung.</p></div>
+      <div class="gl-sticky">
         <div class="gl-tools"><input type="search" id="gq" placeholder="Begriff suchen, z. B. TEU, Cluster, Taylorismus …"><a class="btn" href="#/karten">Als Lernkarten üben</a></div>
         <div class="row"><div class="seg" id="gk"><button data-k="all" aria-pressed="true">Alle</button>${KAP.map((k) => `<button data-k="${k.nr}">Kap. ${k.nr}</button>`).join("")}<button data-k="V">Verkehr</button></div></div>
         <div class="az" id="az"></div>
-      </div><div class="gl-list" id="gl" style="margin-top:16px"></div>`;
+      </div><div class="gl-list" id="gl"></div>`;
     const draw = () => {
       const f = filt.toLowerCase();
       const items = GL.filter((g) => (kf === "all" || g.k === kf) && (!f || g.n.includes(f) || g.d.toLowerCase().includes(f))).sort((a, b) => a.t.localeCompare(b.t, "de"));
@@ -574,7 +585,7 @@
       queue = shuffle(all).sort((a, b) => w(a) - w(b)).slice(0, 20);
       idx = 0; got = 0; missed = 0;
     };
-    main.innerHTML = `<div class="fc-wrap"><div class="k-head" style="--kc:var(--accent)"><span class="eyebrow">Lernkarten</span><h1>Karteikasten nach Leitner</h1><p class="lede">Karte antippen zum Umdrehen. „Gewusst“ schiebt sie ein Fach weiter, „Nochmal“ zurück ins erste Fach. Karten in niedrigen Fächern kommen öfter.</p></div>
+    main.innerHTML = `<div class="fc-wrap"><div class="k-head" style="--kc:var(--orange)"><span class="eyebrow">Lernkarten</span><h1>Karteikasten nach Leitner</h1><p class="lede">Karte antippen zum Umdrehen. „Gewusst“ schiebt sie ein Fach weiter, „Nochmal“ zurück ins erste Fach. Karten in niedrigen Fächern kommen öfter.</p></div>
       <div class="card" style="display:grid;gap:10px"><div class="row"><div class="seg" id="fd"><button data-d="glossar" aria-pressed="${deckCfg.deck === "glossar"}">Begriffe (Glossar)</button><button data-d="fragen" aria-pressed="${deckCfg.deck === "fragen"}">Kontrollfragen</button></div>
       <select id="fk" class="btn sm"><option value="prio">nur Schwerpunkt-Kapitel</option><option value="all">alle Kapitel</option>${KAP.map((k) => `<option value="${k.nr}">Kapitel ${k.nr}</option>`).join("")}</select></div>
       <div class="boxes" id="bx"></div></div>
@@ -624,11 +635,11 @@
   /* ================= Klausur-Kompass ================= */
   function viewKompass() {
     const L = (k, s, t) => `<a href="#/kapitel/${k}${s != null ? "/" + s : ""}">${t}</a>`;
-    main.innerHTML = `<div class="k-head" style="--kc:var(--accent)"><span class="eyebrow">Klausur-Kompass</span><h1>Was kommt dran – und wie schreibe ich die Antwort?</h1>
+    main.innerHTML = `<div class="k-head" style="--kc:var(--orange)"><span class="eyebrow">Klausur-Kompass</span><h1>Was kommt dran – und wie schreibe ich die Antwort?</h1>
       <p class="lede">Die Hinweise des Professors, übersetzt in einen Lernplan. Grundregel: <b>Schwerpunkte gründlich, Überblicks-Kapitel im Großen, sichere Fragen auswendig strukturieren.</b></p></div>
       <div class="grid g2" style="margin-top:20px">
-        <div class="card" style="display:grid;gap:10px"><h3>Format der Klausur</h3>
-          <div class="row"><span class="chip">⏱ 60–90 Minuten</span><span class="chip">✍️ offene Fragen</span><span class="chip">🚫 kein Multiple Choice</span><span class="chip">📝 ganze Sätze</span></div>
+        <div class="card framed" style="display:grid;gap:10px"><h3>Format der Klausur</h3>
+          <div class="row"><span class="chip">60–90 Minuten</span><span class="chip">offene Fragen</span><span class="chip">kein Multiple Choice</span><span class="chip">ganze Sätze</span></div>
           <h3 style="margin-top:6px">Sicher dabei</h3>
           <ul style="margin:0;padding-left:20px;display:grid;gap:4px">
             <li><b>Belt and Road</b> (Neue Seidenstraße) – ${L("k5", 4, "Kapitel 5.4")} · <a href="#/film/f14">Film</a></li>

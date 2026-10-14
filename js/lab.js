@@ -6,9 +6,9 @@
   /* ---------- 1. Christaller ---------- */
   function christaller(root) {
     let K = 3, sel = null, showLow = true;
-    root.innerHTML = `<div class="lab"><div class="lab-stage"><svg id="cs" viewBox="0 0 760 560" role="img" aria-label="Sechsecknetz zentraler Orte"></svg></div>
+    root.innerHTML = `<div class="labx"><div class="lab-stage"><svg id="cs" viewBox="0 0 760 560" role="img" aria-label="Sechsecknetz zentraler Orte"></svg></div>
       <div class="lab-ctl"><div class="card" style="display:grid;gap:12px">
-        <b style="font-family:var(--f-display);font-size:18px">Theorie der zentralen Orte</b>
+        <b class="ttl">Theorie der zentralen Orte</b>
         <div class="seg" id="ck"><button data-k="3" aria-pressed="true">K = 3</button><button data-k="4">K = 4</button><button data-k="7">K = 7</button></div>
         <label class="tick"><input type="checkbox" id="clow" checked> Marktgebiete der unteren Stufe zeigen</label>
         <div class="lab-out" id="cout"></div>
@@ -32,7 +32,7 @@
     };
     function draw() {
       const [rA, rot] = areaSpec();
-      let g = `<rect width="${W}" height="${H}" fill="var(--paper)"/>`;
+      let g = `<rect width="${W}" height="${H}" fill="var(--panel)"/>`;
       if (showLow) pts.forEach((p) => (g += `<path d="${hex(p.x, p.y, a / R3, 30)}" class="hx-cell"/>`));
       pts.filter(isHigh).forEach((p) => (g += `<path d="${hex(p.x, p.y, rA, rot)}" class="hx-area ${sel && sel.i === p.i && sel.j === p.j ? "sel" : ""}"/>`));
       const served = sel ? pts.filter((p) => Math.abs(Math.hypot(p.x - sel.x, p.y - sel.y) - a) < 1) : [];
@@ -45,7 +45,7 @@
       svg.innerHTML = g;
       svg.querySelectorAll(".hx-high").forEach((c) => (c.onclick = () => { sel = pts.find((p) => p.i === +c.dataset.i && p.j === +c.dataset.j); draw(); }));
       const [t, d, f] = info[K];
-      root.querySelector("#cout").innerHTML = `<b>K = ${K} · ${t}</b><span>${d}</span><span class="mono" style="font-size:18px;color:var(--accent);font-weight:700">${f}</span>${sel ? `<span>Ausgewählter Ort versorgt <b>sich selbst</b> und <b>6 Orte</b> der unteren Stufe (grün) – ${K === 7 ? "ganz" : K === 4 ? "jeweils zur Hälfte" : "jeweils zu einem Drittel"}.</span>` : ""}`;
+      root.querySelector("#cout").innerHTML = `<b>K = ${K} · ${t}</b><span>${d}</span><span class="mono" style="font-size:18px;color:var(--orange);font-weight:700">${f}</span>${sel ? `<span>Ausgewählter Ort versorgt <b>sich selbst</b> und <b>6 Orte</b> der unteren Stufe (grün) – ${K === 7 ? "ganz" : K === 4 ? "jeweils zur Hälfte" : "jeweils zu einem Drittel"}.</span>` : ""}`;
     }
     root.querySelectorAll("#ck button").forEach((b) => (b.onclick = () => { K = +b.dataset.k; sel = null; root.querySelectorAll("#ck button").forEach((x) => x.setAttribute("aria-pressed", x === b)); draw(); }));
     root.querySelector("#clow").onchange = (e) => { showLow = e.target.checked; draw(); };
@@ -58,10 +58,10 @@
     const flat = []; let acc = 0;
     MIF.forEach((r, y) => r.forEach((p, x) => { acc += p; flat.push([acc, x - 2, y - 2]); }));
     let grid, gen, hist, timer = null, barrier = false, media = false, speed = 400;
-    root.innerHTML = `<div class="lab"><div class="lab-stage"><svg id="ds" viewBox="0 0 620 620" role="img" aria-label="Diffusionssimulation"></svg>
+    root.innerHTML = `<div class="labx"><div class="lab-stage"><svg id="ds" viewBox="0 0 620 620" role="img" aria-label="Diffusionssimulation"></svg>
         <svg id="dc" viewBox="0 0 620 170" style="margin-top:10px"></svg></div>
       <div class="lab-ctl"><div class="card" style="display:grid;gap:12px">
-        <b style="font-family:var(--f-display);font-size:18px">Monte-Carlo-Simulation nach Hägerstrand</b>
+        <b class="ttl">Monte-Carlo-Simulation nach Hägerstrand</b>
         <div class="row"><button class="btn primary" id="dgo">▶ Start</button><button class="btn" id="dstep">+1 Generation</button><button class="btn" id="dreset">↺ Neu</button></div>
         <label>Tempo<input type="range" id="dspd" min="80" max="900" value="400" style="direction:rtl"></label>
         <label class="tick"><input type="checkbox" id="dbar"> Diffusionsbarriere (Fluss/Gebirge: nur 25 % kommen durch)</label>
@@ -71,7 +71,7 @@
       </div></div></div>`;
     const svg = root.querySelector("#ds"), chart = root.querySelector("#dc");
     const cs = 620 / N;
-    const color = (g) => { if (g < 0) return "var(--paper)"; const t = Math.min(1, g / 22); return `hsl(${24 + t * 180}, ${80 - t * 25}%, ${48 + t * 18}%)`; };
+    const color = (g) => { if (g < 0) return "var(--panel)"; const t = Math.min(1, g / 22); return `hsl(${24 + t * 180}, ${80 - t * 25}%, ${48 + t * 18}%)`; };
     function reset() {
       grid = Array.from({ length: N }, () => Array(N).fill(-1));
       const c = (N - 1) / 2; grid[c][c] = 0; gen = 0; hist = [1];
@@ -97,7 +97,7 @@
     function draw(nw) {
       let g = "";
       for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) g += `<rect x="${x * cs}" y="${y * cs}" width="${cs - 1}" height="${cs - 1}" fill="${color(grid[y][x])}"/>`;
-      if (barrier) g += `<rect x="${20 * cs - 3}" y="0" width="5" height="620" fill="var(--brand-2)" opacity=".7"/>`;
+      if (barrier) g += `<rect x="${20 * cs - 3}" y="0" width="5" height="620" fill="var(--info)" opacity=".7"/>`;
       g += `<circle cx="${((N - 1) / 2 + 0.5) * cs}" cy="${((N - 1) / 2 + 0.5) * cs}" r="6" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
       svg.innerHTML = g;
       const tot = hist[hist.length - 1];
@@ -133,8 +133,8 @@
     const lerp = (arr, t) => { const i = Math.min(9, Math.floor(t / 10)), f = (t - i * 10) / 10; return arr[i] + (arr[i + 1] - arr[i]) * f; };
     const phase = (t) => (t < 22 ? 1 : t < 48 ? 2 : t < 70 ? 3 : t < 88 ? 4 : 5);
     const ex = { 1: ["prätransformativ", "vorindustrielle Agrargesellschaft – Österreich um 1800–1850", "Pyramide"], 2: ["frühtransformativ", "heute z. B. Niger (6,7 Kinder je Frau), Somalia, DR Kongo · Österreich 1850–1900", "verbreiterte Pyramide"], 3: ["mitteltransformativ", "z. B. viele Länder Süd- und Südostasiens · Österreich 1900–1950", "Glocke"], 4: ["spättransformativ", "Österreich 1950–2000 – kaum natürlicher Zuwachs", "Urne"], 5: ["Schrumpfung (Phase 5)", "Japan, Italien, Südkorea, viele Länder Ost- und Südosteuropas", "Urne / Tropfen"] };
-    root.innerHTML = `<div class="lab"><div class="lab-stage"><svg id="dm" viewBox="0 0 720 360"></svg><svg id="py" viewBox="0 0 720 200" style="margin-top:8px"></svg></div>
-      <div class="lab-ctl"><div class="card" style="display:grid;gap:12px"><b style="font-family:var(--f-display);font-size:18px">Demografischer Übergang</b>
+    root.innerHTML = `<div class="labx"><div class="lab-stage"><svg id="dm" viewBox="0 0 720 360"></svg><svg id="py" viewBox="0 0 720 200" style="margin-top:8px"></svg></div>
+      <div class="lab-ctl"><div class="card" style="display:grid;gap:12px"><b class="ttl">Demografischer Übergang</b>
         <label>Zeit / Entwicklungsstand<input type="range" id="dt" min="0" max="100" value="35"></label>
         <div class="kpi"><div><b id="vgr"></b><small>Geburtenrate ‰</small></div><div><b id="vsr"></b><small>Sterberate ‰</small></div><div><b id="vw"></b><small>Wachstum pro Jahr</small></div><div><b id="vd"></b><small>Verdoppelung</small></div></div>
         <div class="lab-out" id="vout"></div></div></div></div>`;
@@ -182,8 +182,8 @@
 
   /* ---------- 4. Suez vs. Kap ---------- */
   function seeroute(root) {
-    root.innerHTML = `<div class="lab"><div class="lab-stage">${V.map.render("afroeurasia", { routes: [{ pts: V.R.suez, cls: "r1", label: "via Suez", lpos: [60, 20] }, { pts: V.R.kap, cls: "r4", label: "ums Kap", lpos: [12, -24], anchor: "start" }], points: [{ p: V.P.shanghai, t: "Shanghai" }, { p: V.P.rotterdam, t: "Rotterdam", anchor: "end", dy: -8 }, { p: V.P.suez, t: "Suez", cls: "choke", anchor: "end" }] })}</div>
-      <div class="lab-ctl"><div class="card" style="display:grid;gap:12px"><b style="font-family:var(--f-display);font-size:18px">Rechner: Shanghai → Rotterdam</b>
+    root.innerHTML = `<div class="labx"><div class="lab-stage">${V.map.render("afroeurasia", { routes: [{ pts: V.R.suez, cls: "r1", label: "via Suez", lpos: [60, 20] }, { pts: V.R.kap, cls: "r4", label: "ums Kap", lpos: [12, -24], anchor: "start" }], points: [{ p: V.P.shanghai, t: "Shanghai" }, { p: V.P.rotterdam, t: "Rotterdam", anchor: "end", dy: -8 }, { p: V.P.suez, t: "Suez", cls: "choke", anchor: "end" }] })}</div>
+      <div class="lab-ctl"><div class="card" style="display:grid;gap:12px"><b class="ttl">Rechner: Shanghai → Rotterdam</b>
         <label>Geschwindigkeit: <span id="lv"></span><input type="range" id="sv" min="12" max="24" value="17"></label>
         <label>Charterrate (USD/Tag): <span id="lc"></span><input type="range" id="sc" min="10000" max="150000" step="5000" value="60000"></label>
         <label>Treibstoffpreis (USD/t): <span id="lf"></span><input type="range" id="sf" min="400" max="1200" step="50" value="650"></label>
@@ -192,7 +192,7 @@
         <div class="lab-out" id="stxt"></div>
         <p class="empty" style="margin:0;font-size:12.5px">Modellannahmen (gerundet): 19.500 km via Suez, 25.700 km ums Kap; Verbrauch ≈ 150 t/Tag bei 20 Knoten, steigt mit der 3. Potenz der Geschwindigkeit; Suezkanal-Gebühr ≈ 600.000 USD. Kein echter Frachttarif!</p>
       </div></div></div>`;
-    V.map.load().then(() => V.map.hydrate(root));
+    V.map.load().then(() => { V.map.hydrate(root); V.declutter(root); });
     const g = (id) => +root.querySelector(id).value;
     function calc() {
       const v = g("#sv"), ch = g("#sc"), fuel = g("#sf"), teu = g("#st");

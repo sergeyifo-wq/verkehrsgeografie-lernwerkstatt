@@ -32,7 +32,7 @@
       root.innerHTML = `
         <div class="player" tabindex="0">
           <div class="fstage">
-            <div class="fhead"><h3 class="ftitle"></h3><span class="meta fmeta"></span></div>
+            <div class="fhead"><div class="fmeta-l"><span class="rec">REC</span><span class="ftc">00:00</span><span>Kap. 0${(film.kap || "k0").slice(1)} // ${film.id.toUpperCase()}</span></div><h3 class="ftitle"></h3><span class="meta fmeta"></span></div>
             <div class="fvis"><div class="fit"></div></div>
             <div class="fcap" aria-live="polite"></div>
             <div class="fcover">
@@ -65,7 +65,7 @@
 
       function fitNow() {
         if (st.dead) return;
-        const aw = vis.clientWidth - 24, ah = vis.clientHeight - 16;
+        const sm = vis.clientWidth < 500, aw = vis.clientWidth - (sm ? 20 : 72), ah = vis.clientHeight - (sm ? 12 : 28);
         fit.style.transform = "translate(-50%,-50%) scale(1)";
         const w = fit.offsetWidth, h = fit.scrollHeight;
         if (!w || !h) return;
@@ -74,18 +74,20 @@
       }
       const ro = new ResizeObserver(fitNow);
       ro.observe(vis);
+      ro.observe(fit);
 
       function renderScene(i) {
         const sc = film.scenes[i];
         q(".ftitle").textContent = sc.h;
-        q(".fmeta").textContent = `Szene ${i + 1}/${film.scenes.length}`;
+        q(".fmeta").textContent = `${String(i + 1).padStart(2, "0")}/${String(film.scenes.length).padStart(2, "0")}`;
         try { fit.innerHTML = sc.v(); } catch (e) { fit.innerHTML = `<p>Bild konnte nicht geladen werden.</p>`; console.error(e); }
-        if (fit.querySelector(".vz-mapwait")) V.map.load().then(() => { if (!st.dead && st.sc === i) { V.map.hydrate(fit); prepDraw(); reveal(st.si); fitNow(); } });
+        if (fit.querySelector(".vz-mapwait")) V.map.load().then(() => { if (!st.dead && st.sc === i) { V.map.hydrate(fit); V.declutter(fit); prepDraw(); reveal(st.si); fitNow(); } });
+        V.declutter(fit);
         prepDraw();
         reveal(st.si);
         requestAnimationFrame(fitNow);
         setTimeout(fitNow, 250);
-        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNow);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (!st.dead) { V.declutter(fit); fitNow(); } });
         segs.forEach((b, k) => (b.querySelector("i").style.width = k < i ? "100%" : "0"));
         o.onScene && o.onScene(i);
       }
@@ -167,7 +169,8 @@
         cover.querySelector(".b-replay").onclick = () => { st.sc = 0; st.si = 0; cover.hidden = true; renderScene(0); play(); };
         o.onEnd && o.onEnd();
       }
-      function setBtn() { const b = q(".b-play"); b.textContent = st.playing ? "⏸" : "▶"; b.setAttribute("aria-label", st.playing ? "Pause" : "Abspielen"); }
+      function setBtn() { const b = q(".b-play"); b.textContent = st.playing ? "⏸" : "▶"; b.setAttribute("aria-label", st.playing ? "Pause" : "Abspielen"); P.classList.toggle("playing", st.playing);
+        clearInterval(st.tc); if (st.playing) st.tc = setInterval(() => { st.el = (st.el || 0) + 1; const t = q(".ftc"); if (t) t.textContent = `${String(Math.floor(st.el / 60)).padStart(2, "0")}:${String(st.el % 60).padStart(2, "0")}`; }, 1000); }
       function play() {
         if (st.dead) return;
         if (active && active !== ctl) active.pause();
@@ -188,7 +191,7 @@
         if (autoplay) { st.playing = true; setBtn(); sayCurrent(); } else { reveal(0); setBtn(); }
       }
       const ctl = { play, pause, goto, get state() { return st; },
-        destroy() { st.dead = true; clearTimers(); stopSpeech(); ro.disconnect(); if (active === ctl) active = null; } };
+        destroy() { st.dead = true; clearInterval(st.tc); clearTimers(); stopSpeech(); ro.disconnect(); if (active === ctl) active = null; } };
 
       q(".playbig").onclick = play;
       q(".b-play").onclick = () => (st.playing ? pause() : play());
